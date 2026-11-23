@@ -58,7 +58,7 @@ def code_of(request: Request) -> str | None:
 
 # ---------------------------------------------------------------- pages
 
-for _page in ("call", "owner", "dashboard"):
+for _page in ("call", "owner", "dashboard", "demo"):
     def _make(page: str):
         async def _serve() -> FileResponse:
             return FileResponse(WEB / f"{page}.html")
