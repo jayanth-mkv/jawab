@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Owner app · Jawab</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top"><div class="brand">Jaw<span>ab</span></div>
+  <nav><a href="/">Home</a><a href="/call">Customer call</a><a class="on" href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a></nav>
+</header>
+<main class="wrap" style="max-width:760px">
+  <h1>Namaste, Ritu ji 👋</h1>
+  <p class="lead">Customers asked these and Jawab didn’t guess. Tap the mic, answer in Hindi or English in a few seconds, check the draft, confirm. Jawab tells the customer, then you can put the answer on your website.</p>
+  <section id="open"></section>
+  <h2 style="margin-top:26px">Ready to publish</h2>
+  <section id="publish"><p class="muted">Nothing yet.</p></section>
+  <h2 style="margin-top:26px">Done</h2>
+  <section id="done"><p class="muted">Nothing yet.</p></section>
+</main>
+<script src="/static/common.js"></script>
+<script>
+const { api, esc, ago } = Jawab;
+let data = { gaps: [], facts: [] }, recording = null, freshIds = new Set();
+
+function factOf(g) { return data.facts.find((f) => f.id === g.fact_id); }
+
+function render() {
+  const open = data.gaps.filter((g) => g.status === "open");
+  const pub = data.gaps.filter((g) => ["answered", "called_back"].includes(g.status));
+  const done = data.gaps.filter((g) => ["published", "verified"].includes(g.status));
+  document.getElementById("open").innerHTML = open.length ? open.map(openCard).join("") : `<div class="card muted">No open questions. Every customer question so far has an answer.</div>`;
+  document.getElementById("publish").innerHTML = pub.length ? pub.map(pubCard).join("") : `<p class="muted">Nothing yet.</p>`;
+  document.getElementById("done").innerHTML = done.length ? done.map(doneCard).join("") : `<p class="muted">Nothing yet.</p>`;
+}
+
+function openCard(g) {
+  const d = g.draft;
+  return `<div class="gap ${freshIds.has(g.id) ? "fresh" : ""}" id="g-${g.id}">
+    <span class="pill p-amber">Customer waiting · ${ago(g.created_at)}</span> ${g.callback_consent ? '<span class="pill p-green">Callback OK</span>' : ""}
+    <p class="q" style="margin:10px 0 2px">${esc(g.question)}</p>
+    <p class="cw" style="margin:0 0 12px">“${esc(g.caller_words)}”</p>
+    <div style="display:flex;align-items:center;gap:12px">
+      <button class="rec" data-rec="${g.id}" title="Tap to record, tap again to send">🎙️</button>
+      <span class="muted" id="rs-${g.id}">${d ? "Draft ready below. Record again to replace it." : "Tap the mic and speak your answer"}</span>
+    </div>
+    ${d ? draftForm(g) : ""}
+  </div>`;
+}
+
+function draftForm(g) {
+  const d = g.draft;
+  return `<div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px">
+    <div class="kv">You said: <b>“${esc(d.transcript)}”</b> <span class="muted">(${d.extract_seconds}s)</span></div>
+    ${d.answers_question ? "" : `<p class="pill p-amber" style="margin-top:8px">This may not answer the question — check before confirming.</p>`}
+    <label>FAQ question</label><input type="text" id="q-${g.id}" value="${esc(d.faq_question)}">
+    <label>Answer (English)</label><textarea id="en-${g.id}">${esc(d.answer_en)}</textarea>
+    <label>उत्तर (हिंदी)</label><textarea id="hi-${g.id}" lang="hi">${esc(d.answer_hi)}</textarea>
+    ${d.details_missing ? `<p class="muted">Customers may also ask: ${esc(d.details_missing)}</p>` : ""}
+    <button class="btn green" style="margin-top:10px" data-confirm="${g.id}">✓ Confirm — tell the customer</button>
+  </div>`;
+}
+
+function pubCard(g) {
+  const f = factOf(g) || {};
+  return `<div class="gap"><span class="pill p-green">${g.callback_channel === "same call" ? "Told on the same call" : g.status === "called_back" ? "Customer called back" : "Waiting for callback"}</span>
+    <p class="q" style="margin:10px 0 4px">${esc(f.question)}</p><p style="margin:0">${esc(f.answer)}</p>
+    ${f.answer_hi ? `<p lang="hi" class="muted" style="margin:4px 0 0">${esc(f.answer_hi)}</p>` : ""}
+    <button class="btn small" style="margin-top:10px" data-publish="${f.id}">Put this on my website</button></div>`;
+}
+
+function doneCard(g) {
+  const f = factOf(g) || {}, v = g.verification;
+  return `<div class="gap"><span class="pill ${g.status === "verified" ? "p-green" : "p-blue"}">${g.status === "verified" ? "✓ Live on website, verified" : "Publishing… checking the live page"}</span>
+    <p class="q" style="margin:10px 0 4px">${esc(f.question)}</p>
+    ${v ? `<p class="muted" style="margin:0">Checked ${ago(v.checked_at)} · page ${v.http_status || "?"} · visible ${v.visible ? "yes" : "no"} · structured data ${v.structured_data ? "yes" : "no"}</p>` : ""}</div>`;
+}
+
+async function load() { data = await api("/api/state"); render(); }
+
+document.addEventListener("click", async (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.dataset.rec) toggleRecord(t, t.dataset.rec);
+  if (t.dataset.confirm) {
+    const id = t.dataset.confirm; t.disabled = true; t.textContent = "Confirming…";
+    const val = (p) => document.getElementById(`${p}-${id}`).value;
+    try { await api(`/api/gaps/${id}/confirm`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ faq_question: val("q"), answer_en: val("en"), answer_hi: val("hi") }) }); }
+    catch (err) { alert(err.message); }
+    load();
+  }
+  if (t.dataset.publish) { t.disabled = true; t.textContent = "Publishing…"; await api(`/api/facts/${t.dataset.publish}/publish`, { method: "POST" }); load(); }
+});
+
+async function toggleRecord(btn, gapId) {
+  const status = document.getElementById(`rs-${gapId}`);
+  if (recording) {
+    recording.rec.stop(); btn.classList.remove("on"); status.textContent = "Understanding your answer…"; return;
+  }
+  let stream;
+  try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { status.textContent = "Microphone permission is needed"; return; }
+  const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"].find((m) => MediaRecorder.isTypeSupported(m)) || "";
+  const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined), chunks = [];
+  rec.ondataavailable = (ev) => ev.data.size && chunks.push(ev.data);
+  rec.onstop = async () => {
+    stream.getTracks().forEach((tr) => tr.stop());
+    const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+    recording = null;
+    const fd = new FormData(); fd.append("audio", blob, "note.webm");
+    try { await api(`/api/gaps/${gapId}/voice`, { method: "POST", body: fd }); } catch (err) { status.textContent = "Could not read that: " + err.message; return; }
+    load();
+  };
+  rec.start(); recording = { rec }; btn.classList.add("on"); status.textContent = "Recording… tap again to send";
+  setTimeout(() => recording && recording.rec === rec && btn.click(), 30000);
+}
+
+Jawab.events((m) => {
+  if (m.type === "gap" && m.gap.status === "open" && !data.gaps.find((g) => g.id === m.gap.id)) {
+    freshIds.add(m.gap.id);
+    try { new AudioContext().resume(); navigator.vibrate && navigator.vibrate(200); } catch {}
+  }
+  if (["gap", "fact", "reset"].includes(m.type) && !recording) load();
+});
+load();
+</script>
+</body>
+</html>

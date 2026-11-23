@@ -1,0 +1,115 @@
+{
+ "summary": {
+  "runs": 3,
+  "loops_verified": 3,
+  "gaps_reported_instead_of_guessing": 3,
+  "told_in_same_call": 3,
+  "median_first_audio_ms": 1303,
+  "median_gap_reported_ms": 12248,
+  "median_extract_ms": 2799,
+  "median_caller_told_ms": 1004,
+  "median_verify_ms": 1114,
+  "median_loop_total_s": 37.5
+ },
+ "runs": [
+  {
+   "question": "Sunday ko Palasia mein delivery karte ho?",
+   "connect_ms": 629,
+   "gap_reported_ms": 12248,
+   "callback_consent_arg": true,
+   "first_audio_ms": 2077,
+   "agent_reply": "",
+   "extract_ms": 3983,
+   "draft": {
+    "transcript": "Haan ji, Sunday ko bhi Palasia delivery karte hain, subah 11 baje se sham 5 baje tak. Delivery charge 80 rupaye.",
+    "answers_question": true,
+    "answer_en": "Yes, we deliver to Palasia on Sundays from 11 AM to 5 PM with a delivery charge of 80 rupees.",
+    "answer_hi": "हाँ, हम रविवार को सुबह 11 बजे से शाम 5 बजे तक पलासिया में डिलीवरी करते हैं और डिलीवरी चार्ज 80 रुपये है।",
+    "faq_question": "Do you deliver to Palasia on Sundays?",
+    "details_missing": "",
+    "extract_seconds": 2.49
+   },
+   "delivered_in_call": true,
+   "caller_told_ms": 1095,
+   "agent_told_caller": "Ritu ji ne confirm kiya hai ki hum Sunday ko Palasia mein delivery karte hain, subah 11 baje se shaam 5 baje tak. Iske liye 80 rupees delivery charge lagega.",
+   "verify_ms": 2347,
+   "verification": {
+    "fetch_ms": 292,
+    "http_status": 200,
+    "checked_at": 1795468167.2233078,
+    "url": "https://jawab-409832267025.us-central1.run.app/site",
+    "visible": true,
+    "ok": true,
+    "structured_data": true
+   },
+   "final_status": "verified",
+   "loop_total_s": 38.8
+  },
+  {
+   "question": "Kya aap sugar-free cake banate ho?",
+   "connect_ms": 629,
+   "gap_reported_ms": 8894,
+   "callback_consent_arg": true,
+   "first_audio_ms": 1303,
+   "agent_reply": "",
+   "extract_ms": 2715,
+   "draft": {
+    "transcript": "Haan, sugar-free cake bana dete hain, par ek din pehle order dena hoga aur price same hai.",
+    "answers_question": true,
+    "answer_en": "Yes, we make sugar-free cakes, but you need to place the order one day in advance, and the price is the same.",
+    "answer_hi": "हाँ, हम शुगर-फ्री केक बना देते हैं, पर आपको एक दिन पहले ऑर्डर देना होगा और कीमत वही है।",
+    "faq_question": "Do you make sugar-free cakes?",
+    "details_missing": "",
+    "extract_seconds": 1.36
+   },
+   "delivered_in_call": true,
+   "caller_told_ms": 875,
+   "agent_told_caller": "Ritu ji ne abhi confirm kiya hai ki hum sugar-free cakes banate hain. Iske liye aapko ek din pehle order dena padega, aur price same hi rahega.",
+   "verify_ms": 1033,
+   "verification": {
+    "fetch_ms": 69,
+    "http_status": 200,
+    "checked_at": 1795468199.3726962,
+    "url": "https://jawab-409832267025.us-central1.run.app/site",
+    "visible": true,
+    "ok": true,
+    "structured_data": true
+   },
+   "final_status": "verified",
+   "loop_total_s": 31.0
+  },
+  {
+   "question": "Do you take bulk orders for office parties?",
+   "connect_ms": 587,
+   "gap_reported_ms": 12377,
+   "callback_consent_arg": true,
+   "first_audio_ms": 909,
+   "agent_reply": "Hello, main Sweet Crumbs Bakery ki AI assistant hoon. Main bulk orders ke baare mein abhi confirm nahi kar sakti, Ritu ji se poochkar aapko kuch hi der mein batati hoon. Kya main aapko call back kar sakti hoon?",
+   "extract_ms": 2799,
+   "draft": {
+    "transcript": "हां, ऑफिस पार्टी के लिए बल्क ऑर्डर लेते हैं, कम से कम पांच किलो और 10% डिस्काउंट मिलता है।",
+    "answers_question": true,
+    "answer_en": "Yes, we accept bulk orders for office parties for a minimum of five kilos, and a 10% discount is available.",
+    "answer_hi": "हाँ, हम ऑफिस पार्टी के लिए कम से कम पाँच किलो के बल्क ऑर्डर लेते हैं और 10% छूट उपलब्ध है।",
+    "faq_question": "Do you take bulk orders for office parties?",
+    "details_missing": "",
+    "extract_seconds": 1.42
+   },
+   "delivered_in_call": true,
+   "caller_told_ms": 1004,
+   "agent_told_caller": "Ritu ji ne abhi confirm kiya hai ki hum office parties ke liye bulk orders lete hain, minimum five kilos par, aur 10% discount bhi available hai.",
+   "verify_ms": 1114,
+   "verification": {
+    "fetch_ms": 89,
+    "http_status": 200,
+    "checked_at": 1795468237.0082,
+    "url": "https://jawab-409832267025.us-central1.run.app/site",
+    "visible": true,
+    "ok": true,
+    "structured_data": true
+   },
+   "final_status": "verified",
+   "loop_total_s": 37.5
+  }
+ ]
+}

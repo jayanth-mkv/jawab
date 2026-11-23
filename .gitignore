@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/terraform.tfvars
+infra/.terraform.tfstate.lock.info
+bench/out/*.wav
+bench/out/e2e.final.json
+.last_image
+infra/tfplan

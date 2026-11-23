@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Answer Loop · Jawab</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top"><div class="brand">Jaw<span>ab</span></div>
+  <nav><a href="/">Home</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a class="on" href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a></nav>
+</header>
+<main class="wrap">
+  <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+    <div><h1>The Missed-Answer Loop</h1>
+      <p class="lead" style="margin:0">Every question Jawab couldn’t answer, tracked from the call to a verified answer on the web.</p></div>
+    <button class="btn ghost small" id="reset" style="margin-left:auto">Reset demo</button>
+  </div>
+  <div class="grid g6" style="margin:18px 0" id="stats"></div>
+  <div class="card"><h2>Questions</h2><div id="gaps"></div></div>
+  <div class="card" style="margin-top:16px"><h2>What Jawab knows (owner-confirmed facts)</h2><table><thead><tr><th>Question</th><th>Answer</th><th>Source</th><th>On website</th></tr></thead><tbody id="facts"></tbody></table></div>
+</main>
+<script src="/static/common.js"></script>
+<script>
+const { api, esc, ago, secs, STEPS } = Jawab;
+let data;
+
+function render() {
+  const m = data.metrics;
+  document.getElementById("stats").innerHTML = [
+    [m.gaps, "questions Jawab didn’t guess"], [m.answered, "answered by the owner"], [m.called_back, "customers told the answer"],
+    [m.verified, "answers verified live on the web"], [secs(m.median_seconds_to_callback), "median time: question → customer told"],
+    [secs(m.median_seconds_to_verified), "median time: question → verified on web"],
+  ].map(([v, l]) => `<div class="card stat"><b>${v ?? 0}</b><span class="muted">${l}</span></div>`).join("");
+
+  document.getElementById("gaps").innerHTML = data.gaps.length ? data.gaps.map((g) => {
+    const f = data.facts.find((x) => x.id === g.fact_id), times = g.times || {};
+    const steps = STEPS.map(([k, l]) => `<span class="step ${times[k] ? "done" : ""}">${times[k] ? "✓ " : ""}${l}${times[k] && k !== "open" ? ` · ${secs(times[k] - times.open)}` : ""}</span>`).join("");
+    const p = g.ai_probe;
+    const probe = p ? (p.error ? `<span class="muted">AI-answer check failed: ${esc(p.error)}</span>`
+      : `<div class="kv" style="margin-top:6px"><b>AI-answer check (Gemini + Google Search):</b> ${p.cited_our_page ? '<span class="pill p-green">cites our page</span>' : '<span class="pill p-amber">not cited yet — search engines need days to weeks to index</span>'}
+         <span class="muted">${p.sources && p.sources.length ? "Sources seen: " + esc(p.sources.join(", ")) : ""}</span>
+         <button class="btn ghost small" data-probe="${g.id}">Re-check</button></div>`) : "";
+    const v = g.verification;
+    return `<div class="gap"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><span class="q">${esc(g.question)}</span><span class="muted">${ago(g.created_at)} · ${g.callback_channel ? esc(g.callback_channel) : "awaiting owner"}</span></div>
+      <div class="cw">“${esc(g.caller_words)}”</div><div class="steps">${steps}</div>
+      ${f ? `<div class="kv"><b>Answer:</b> ${esc(f.answer)} ${f.answer_hi ? `<span lang="hi">/ ${esc(f.answer_hi)}</span>` : ""}</div>` : ""}
+      ${v ? `<div class="kv"><b>Live page check:</b> HTTP ${v.http_status ?? "?"} · visible ${v.visible ? "✓" : "✗"} · FAQPage JSON-LD ${v.structured_data ? "✓" : "✗"} · ${v.fetch_ms ?? "?"} ms</div>` : ""}
+      ${probe}</div>`;
+  }).join("") : `<p class="muted">No gaps yet. Make a <a href="/call">customer call</a> and ask something the bakery hasn’t told Jawab.</p>`;
+
+  document.getElementById("facts").innerHTML = data.facts.map((f) => `<tr><td>${esc(f.question)}</td><td>${esc(f.answer)}</td><td>${esc(f.source)}</td><td>${f.published ? "✓" : "—"}</td></tr>`).join("");
+}
+
+async function load() { data = await api("/api/state"); render(); }
+document.addEventListener("click", async (e) => {
+  const t = e.target.closest("button"); if (!t) return;
+  if (t.id === "reset" && confirm("Reset the demo to the starting facts?")) { await api("/api/reset", { method: "POST" }); load(); }
+  if (t.dataset.probe) { t.disabled = true; t.textContent = "Checking…"; await api(`/api/gaps/${t.dataset.probe}/probe`, { method: "POST" }); load(); }
+});
+Jawab.events((m) => { if (["gap", "fact", "reset"].includes(m.type)) load(); });
+load(); setInterval(() => data && render(), 10000);
+</script>
+</body>
+</html>

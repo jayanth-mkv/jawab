@@ -1,0 +1,173 @@
+{
+ "summary": {
+  "calls": 20,
+  "answerable_correct": "10/10",
+  "unanswerable_not_guessed": "10/10",
+  "unanswerable_gap_filed": "10/10",
+  "false_gaps_on_answerable": 0,
+  "first_audio_ms_median": 948,
+  "first_audio_ms_p90": 1042
+ },
+ "rows": [
+  {
+   "question": "Aap kitne baje tak khule ho?",
+   "tool": false,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Hum Monday se Saturday subah 9 baje se raat 9 baje tak, aur Sunday subah 10 baje se shaam 6 baje tak khule rehte hain.",
+   "first_audio_ms": 874,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Eggless cake milta hai?",
+   "tool": false,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Haan, humare menu par har cake eggless milta hai, bina kisi extra cost ke.",
+   "first_audio_ms": 864,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Ek kilo cake kitne ka hai?",
+   "tool": false,
+   "text": "Hello! Main Sweet Crumbs Bakery ki AI assistant hoon. Ek kilo cake 650 rupees se start hote hain.",
+   "first_audio_ms": 1042,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Custom birthday cake ke liye kitna pehle order karna hoga?",
+   "tool": false,
+   "text": "Hello! Main Sweet Crumbs Bakery ki AI assistant hoon. Custom ya photo cakes ke liye aapko kam se kam 24 ghante pehle notice dena hoga.",
+   "first_audio_ms": 833,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Your shop is where exactly?",
+   "tool": false,
+   "text": "Hello! I am the AI assistant of Sweet Crumbs Bakery. Our shop is located at Shop 14, Scheme 54, Vijay Nagar, Indore.",
+   "first_audio_ms": 807,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Delivery charge kitna hai?",
+   "tool": false,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Delivery charge 50 rupees hai, jo Vijay Nagar aur aas-paas ke areas mein Monday to Saturday available hai.",
+   "first_audio_ms": 794,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Can I pay by UPI?",
+   "tool": false,
+   "text": "Hello! I am the bakery's AI assistant. Yes, we accept UPI, as well as cards and cash.",
+   "first_audio_ms": 887,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Sunday ko shop kab khulti hai?",
+   "tool": false,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Sunday ko hamari shop subah 10 baje se shaam 6 baje tak khulti hai.",
+   "first_audio_ms": 1031,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Half kg cake ka price kya hai?",
+   "tool": false,
+   "text": "Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Hamare half-kilo cakes 450 rupees se shuru hote hain.",
+   "first_audio_ms": 815,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Photo cake banate ho?",
+   "tool": false,
+   "text": "Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Ji haan, hum photo cakes banate hain par iske liye kam se kam 24 ghante ka notice chahiye hota hai.",
+   "first_audio_ms": 834,
+   "kind": "answerable",
+   "correct": true
+  },
+  {
+   "question": "Sunday ko Palasia mein delivery karte ho?",
+   "tool": true,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Hum delivery sirf Monday to Saturday karte hain, toh Sunday ke liye main Ritu ji se confirm karke aapko kuch hi der mein call back kar sakti hoon. Kya main call back kar loon?",
+   "first_audio_ms": 970,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Kya aap gluten-free cake banate ho?",
+   "tool": true,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Is baare mein Ritu ji se confirm karke main aapko kuch hi der mein call karti hoon, kya main aapko call kar sakti hoon?",
+   "first_audio_ms": 1149,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Office party ke liye bulk discount milega?",
+   "tool": true,
+   "text": "Hello! Main Sweet Crumbs Bakery ki AI assistant hoon. Bulk discount ke baare mein main Ritu ji se confirm karke aapko abhi call karti hoon, kya main aapko call back kar sakti hoon?",
+   "first_audio_ms": 1009,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Do you have parking near the shop?",
+   "tool": true,
+   "text": "Hello, I am the bakery's AI assistant. We don't have parking info confirmed yet, so let me ask Ritu ji and call you back within a few minutes. Is that okay?",
+   "first_audio_ms": 899,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Kya aap Diwali hampers bechte ho?",
+   "tool": true,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Is baare mein main Ritu ji se confirm karke aapko kuch hi der mein call karti hoon, kya main aapko call kar sakti hoon?",
+   "first_audio_ms": 1011,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Wedding cake ka minimum order kitna hai?",
+   "tool": true,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Wedding cake ke liye main Ritu ji se confirm karke aapko thodi der mein call karti hoon, kya main aapko call back kar sakti hoon?",
+   "first_audio_ms": 1120,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Kya aap Swiggy ya Zomato par ho?",
+   "tool": true,
+   "text": "Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Kya aap mujhe ek moment de sakte hain, main Ritu ji se confirm karke abhi batati hoon?",
+   "first_audio_ms": 948,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Cake mein Jain option hai, bina pyaaz lahsun wala?",
+   "tool": true,
+   "text": "Main Sweet Crumbs Bakery ki AI assistant hoon. Main Ritu ji se confirm karke aapko kuch hi minutes mein call karti hoon, kya main aapko call back kar sakti hoon?",
+   "first_audio_ms": 999,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Do you make cupcakes in bulk for schools?",
+   "tool": true,
+   "text": "Hello! I'm the bakery's AI assistant. I'll need to confirm with Ritu ji and call you back in a few minutes. Is that okay?",
+   "first_audio_ms": 1010,
+   "kind": "unanswerable",
+   "correct": true
+  },
+  {
+   "question": "Raat ko 11 baje tak delivery ho sakti hai?",
+   "tool": true,
+   "text": "",
+   "first_audio_ms": null,
+   "kind": "unanswerable",
+   "correct": true
+  }
+ ]
+}

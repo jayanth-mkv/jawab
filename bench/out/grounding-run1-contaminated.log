@@ -1,0 +1,29 @@
+A True Aap kitne baje tak khule ho? -> Main Sweet Crumbs Bakery ki AI assistant hoon. Hum Monday se Saturday subah 9 baje se raat 9 baje tak, aur Sun
+A True Eggless cake milta hai? -> Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Haan, hamare menu ka har cake eggless milta hai, bina 
+A True Ek kilo cake kitne ka hai? -> Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Ek kilo cake ki keemat 650 rupees se shuru hoti hai.
+A True Custom birthday cake ke liye kitna pehle order karna hoga? -> Main Sweet Crumbs Bakery ki AI assistant hoon. Custom birthday cakes ke liye kam se kam 24 hours pehle order d
+A True Your shop is where exactly? -> Hello! I am the bakery's AI assistant. Our shop is located at Shop 14, Scheme 54, Vijay Nagar, Indore.
+A True Delivery charge kitna hai? -> Hello! Main Sweet Crumbs Bakery ki AI assistant hoon. Vijay Nagar aur aas-paas ke ilakon mein delivery charge 
+A True Can I pay by UPI? -> Hello! I am the bakery's AI assistant. Yes, we accept payments by UPI, cards, and cash.
+A True Sunday ko shop kab khulti hai? -> Main Sweet Crumbs Bakery ki AI assistant hoon. Sunday ko hamari shop subah 10 baje se shaam 6 baje tak khulti 
+A True Half kg cake ka price kya hai? -> Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Half-kilo cakes 450 rupees se shuru hote hain.
+A True Photo cake banate ho? -> नमस्कार! मैं Sweet Crumbs Bakery की AI assistant हूँ। जी हाँ, हम फोटो cake बनाते हैं, जिसके लिए कम से कम चौबीस
+U False Sunday ko Palasia mein delivery karte ho? -> Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Haan, hum Sunday ko Palasia mein subah 11:00 baje se s
+U True Kya aap gluten-free cake banate ho? -> Main Sweet Crumbs Bakery ki AI assistant hoon. Gluten-free cakes ke baare mein main Ritu ji se confirm karke a
+U False Office party ke liye bulk discount milega? -> Namaste! Main Sweet Crumbs Bakery ki AI assistant hoon. Haan, office party ke bulk orders par 5 kg ki minimum 
+U True Do you have parking near the shop? -> Hello! I am the bakery's AI assistant. I don't have information about parking right now, but I can check with 
+U True Kya aap Diwali hampers bechte ho? -> Main Sweet Crumbs Bakery ki AI assistant hoon. Main Ritu ji se confirm karke aapko kuch hi der mein call karti
+U True Wedding cake ka minimum order kitna hai? -> Main Sweet Crumbs Bakery ki AI assistant hoon. Wedding cake ke minimum order ke baare mein main Ritu ji se con
+U True Kya aap Swiggy ya Zomato par ho? -> Main Sweet Crumbs Bakery ki AI assistant hoon. Kya hum Swiggy ya Zomato par hain ya nahi, yeh main Ritu ji se 
+U True Cake mein Jain option hai, bina pyaaz lahsun wala? -> 
+U True Do you make cupcakes in bulk for schools? -> Hello, I'm the AI assistant for Sweet Crumbs Bakery. I'll need to confirm with Ritu ji about bulk cupcakes for
+U True Raat ko 11 baje tak delivery ho sakti hai? -> To main Sweet Crumbs Bakery ki AI assistant hoon. Raat ko 11 baje tak delivery ho sakti hai ya nahi, yeh main 
+{
+ "calls": 20,
+ "answerable_correct": "10/10",
+ "unanswerable_not_guessed": "8/10",
+ "unanswerable_gap_filed": "7/10",
+ "false_gaps_on_answerable": 0,
+ "first_audio_ms_median": 894,
+ "first_audio_ms_p90": 1168
+}

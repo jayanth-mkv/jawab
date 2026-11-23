@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Customer call · Jawab</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top"><div class="brand">Jaw<span>ab</span></div>
+  <nav><a href="/">Home</a><a class="on" href="/call">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a></nav>
+</header>
+<main class="wrap">
+  <div class="grid g2">
+    <section>
+      <h1>Call the bakery</h1>
+      <p class="lead">You are a customer calling <b>Sweet Crumbs Bakery, Indore</b>. Speak in Hindi, English or both. Try something it knows (“Eggless cake milta hai?”) and something it doesn’t (“Sunday ko Palasia delivery karte ho?”).</p>
+      <div class="card">
+        <h2>What to watch</h2>
+        <ol class="muted" style="font-size:14px;line-height:1.7">
+          <li>It answers known questions from the owner’s confirmed facts.</li>
+          <li>For an unknown question it <b>does not guess</b>: it asks consent and reports a gap.</li>
+          <li>Open the <a href="/owner" target="_blank">Owner app</a>: answer with a Hindi voice note and confirm.</li>
+          <li>Still on the call? Jawab tells you right away. Hung up? <b>Your phone rings</b> with the callback.</li>
+        </ol>
+        <p class="muted" id="lat"></p>
+      </div>
+    </section>
+    <section>
+      <div class="phone" id="phone">
+        <div class="who"><div class="avatar">🎂</div><b>Sweet Crumbs Bakery</b><small>+91 731 400 1234 · Vijay Nagar, Indore</small></div>
+        <div class="status" id="status">Tap the green button to call</div>
+        <div class="meter"><i id="lvl"></i></div>
+        <div class="feed" id="feed"></div>
+        <div class="controls">
+          <button class="round call" id="callBtn" title="Call">📞</button>
+          <button class="round end" id="endBtn" title="Hang up" disabled>✕</button>
+        </div>
+        <form class="typebox" id="typeForm"><input type="text" id="typeIn" placeholder="Noisy room? Type instead…" autocomplete="off"><button class="btn small" disabled id="typeBtn">Send</button></form>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="/static/common.js"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+let ws, micCtx, playCtx, micStream, player, timerId, t0, lastCallId = null, pendingCallback = null;
+const feed = $("feed");
+
+// Partial transcripts stream in as chunks; the final event repeats the whole utterance,
+// so it replaces the bubble instead of being appended.
+const live = { caller: null, agent: null };
+function say(cls, text, final) {
+  let b = live[cls];
+  if (!b && final) {
+    // A final with no open bubble: skip it if it repeats the last bubble of this speaker.
+    const prev = [...feed.querySelectorAll(".bub." + cls)].pop();
+    if (prev && prev.textContent.trim() === text.trim()) return;
+  }
+  if (!b) { b = document.createElement("div"); b.className = "bub " + cls; feed.appendChild(b); live[cls] = b; }
+  b.textContent = final ? text : b.textContent + text;
+  if (final) live[cls] = null;
+  feed.scrollTop = feed.scrollHeight;
+}
+function sys(text, ok) { const d = document.createElement("div"); d.className = "bub sys" + (ok ? " ok" : ""); d.textContent = text; feed.appendChild(d); feed.scrollTop = feed.scrollHeight; }
+function endTurn() { live.caller = null; live.agent = null; }
+
+async function startAudio() {
+  micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true, channelCount: 1 } });
+  micCtx = new AudioContext({ sampleRate: 16000 });
+  await micCtx.audioWorklet.addModule("/static/pcm-recorder.js");
+  const rec = new AudioWorkletNode(micCtx, "pcm-recorder");
+  micCtx.createMediaStreamSource(micStream).connect(rec);
+  rec.port.onmessage = (e) => { if (ws && ws.readyState === 1) ws.send(e.data); };
+  playCtx = new AudioContext({ sampleRate: 24000 });
+  await playCtx.audioWorklet.addModule("/static/pcm-player.js");
+  player = new AudioWorkletNode(playCtx, "pcm-player", { outputChannelCount: [2] });
+  player.connect(playCtx.destination);
+  player.port.onmessage = (e) => { $("lvl").style.width = Math.min(100, e.data.level * 220) + "%"; };
+}
+function stopAudio() {
+  micStream && micStream.getTracks().forEach((t) => t.stop());
+  micCtx && micCtx.close(); playCtx && playCtx.close();
+  micStream = micCtx = playCtx = player = null; $("lvl").style.width = "0";
+}
+
+async function connect(mode, gapId) {
+  feed.innerHTML = ""; $("callBtn").disabled = true;
+  $("status").textContent = mode === "callback" ? "Connecting callback…" : "Calling…";
+  try { await startAudio(); } catch (e) { $("status").textContent = "Microphone permission is needed"; $("callBtn").disabled = false; return; }
+  const q = new URLSearchParams({ code: Jawab.code(), mode });
+  if (gapId) q.set("gap", gapId);
+  ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/call?${q}`);
+  ws.binaryType = "arraybuffer";
+  ws.onopen = () => {
+    t0 = Date.now(); $("endBtn").disabled = false; $("typeBtn").disabled = false;
+    timerId = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000); $("status").textContent = `${mode === "callback" ? "Callback" : "On call"} · ${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }, 500);
+  };
+  ws.onmessage = (e) => {
+    if (e.data instanceof ArrayBuffer) { player && player.port.postMessage(e.data, [e.data]); return; }
+    const m = JSON.parse(e.data);
+    if (m.type === "session") { if (mode === "inbound") lastCallId = m.call_id; }
+    else if (m.type === "caller_text") say("caller", m.text, m.final);
+    else if (m.type === "agent_text") say("agent", m.text, m.final);
+    else if (m.type === "turn_complete") endTurn();
+    else if (m.type === "interrupted") { player && player.port.postMessage({ cmd: "flush" }); endTurn(); }
+    else if (m.type === "tool" && m.name === "report_unanswered_question") sys(`Gap reported → owner notified: “${m.args.question_en}”`);
+    else if (m.type === "owner_answer") sys(`Owner just answered: ${m.fact.answer}`, true);
+    else if (m.type === "latency") $("lat").textContent = `Last response started ${m.ms} ms after you spoke.`;
+    else if (m.type === "time_limit") { sys("Demo call limit reached"); hangup(); }
+  };
+  ws.onclose = (e) => { if (e.code === 4401) { alert("Access code required"); } hangup(true); };
+}
+
+function hangup(fromServer) {
+  if (ws && ws.readyState <= 1 && !fromServer) { try { ws.send(JSON.stringify({ type: "hangup" })); } catch {} ws.close(); }
+  ws = null; clearInterval(timerId); stopAudio();
+  $("endBtn").disabled = true; $("typeBtn").disabled = true; $("callBtn").disabled = false;
+  if (!pendingCallback) $("status").textContent = "Call ended";
+}
+
+// Incoming callback when the owner answers after the customer hung up.
+let ringTimer;
+function ring(gapId) {
+  pendingCallback = gapId;
+  $("phone").classList.add("ringing");
+  $("status").textContent = "📲 Incoming call from Sweet Crumbs Bakery — tap green to answer";
+  const ctx = new AudioContext();
+  const beep = () => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 880; g.gain.value = .06; o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .35); };
+  beep(); ringTimer = setInterval(beep, 1400);
+}
+function stopRing() { $("phone").classList.remove("ringing"); clearInterval(ringTimer); }
+
+$("callBtn").onclick = () => {
+  if (pendingCallback) { const g = pendingCallback; pendingCallback = null; stopRing(); connect("callback", g); }
+  else connect("inbound");
+};
+$("endBtn").onclick = () => hangup();
+$("typeForm").onsubmit = (e) => { e.preventDefault(); const t = $("typeIn").value.trim(); if (!t || !ws) return; ws.send(JSON.stringify({ type: "text", text: t })); say("caller", t); endTurn(); $("typeIn").value = ""; };
+
+Jawab.events((m) => {
+  if (m.type === "callback_ready" && m.call_id && m.call_id === lastCallId && !ws) ring(m.gap_id);
+});
+</script>
+</body>
+</html>

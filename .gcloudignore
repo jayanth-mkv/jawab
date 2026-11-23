@@ -1,0 +1,8 @@
+.venv
+.git
+infra
+bench
+tests
+docs
+**/__pycache__
+!Dockerfile
