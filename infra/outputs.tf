@@ -18,3 +18,11 @@ output "access_code" {
   value     = random_password.access_code.result
   sensitive = true
 }
+
+output "github_wif_provider" {
+  value = google_iam_workload_identity_pool_provider.github.name
+}
+
+output "github_deployer" {
+  value = google_service_account.deployer.email
+}

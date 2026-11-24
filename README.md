@@ -116,11 +116,14 @@ uv run pytest                                                                   
 # Google Cloud
 cd infra && cp ../infra/terraform.tfvars.example terraform.tfvars   # set billing_account
 terraform init && terraform apply
-GCLOUD_ACCOUNT=you@example.com ../scripts/deploy.sh                # Cloud Build -> Terraform rollout
-#   or keep a named gcloud config: gcloud config configurations create jawab --no-activate, then
-#   CLOUDSDK_ACTIVE_CONFIG_NAME=jawab ../scripts/deploy.sh          # uses that config's account
 terraform output -raw access_code                                  # demo access code
 ```
+
+**Deploys are automatic:** every push to `main` that passes CI (ruff, pytest, terraform validate) is built and rolled
+out to Cloud Run by the `deploy` job in `.github/workflows/ci.yml`. GitHub signs in to Google Cloud with Workload
+Identity Federation (no stored keys); only pushes to `main` of this repository are trusted, and the deployer service
+account can only push images and update this one service. To ship the working tree by hand instead:
+`CLOUDSDK_ACTIVE_CONFIG_NAME=jawab scripts/deploy.sh` (Cloud Build, then `gcloud run services update --image`).
 
 Open `/try` (or `/call` and `/owner` side by side; demo access code `cbnav1efhd`). Ask the bakery *"Sunday ko Palasia delivery karte ho?"*, answer it from the
 owner app with a voice note, and watch `/dashboard` and `/site`.

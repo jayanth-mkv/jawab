@@ -41,3 +41,9 @@ variable "budget_inr" {
   type        = number
   default     = 3000
 }
+
+variable "github_repo" {
+  description = "GitHub repository (owner/name) whose pushes to main may deploy."
+  type        = string
+  default     = "jayanth-mkv/jawab"
+}
