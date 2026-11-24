@@ -5,83 +5,104 @@
 <title>Owner app · Jawab</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="owner">
 <header class="top"><a class="brand" href="/" style="text-decoration:none">Jaw<span>ab</span><small>Missed-Answer Loop</small></a>
-  <nav><a href="/try" class="cta">▶ Try it live</a><a href="/call">Customer call</a><a href="/owner" class="on">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
+  <nav><a href="/try" class="cta">Try it live</a><a href="/call">Customer call</a><a href="/owner" class="on">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
 </header>
-<main class="wrap" style="max-width:760px">
-  <p class="eyebrow">Owner app · Sweet Crumbs Bakery</p>
-  <h1>Namaste, Ritu ji 👋</h1>
-  <p class="lead">Customers asked these and Jawab didn’t guess. Answer in a few seconds: <b>tap the mic and speak</b> (Hindi or English), or type it. Check the draft and confirm. Jawab tells the customer and, if you tick the box, puts the answer on your website.</p>
-  <h2>Waiting for your answer</h2>
+<main class="wrap" style="max-width:720px">
+  <div class="ohead">
+    <span class="oavatar">RJ</span>
+    <div><b>Namaste, Ritu ji</b><small>Sweet Crumbs Bakery · Owner</small></div>
+    <span class="oonline"><i></i>Jawab is answering calls</span>
+  </div>
+  <p class="lead" style="margin:14px 0 0;font-size:15px">Customers asked these and Jawab didn’t guess. Answer in a few seconds: <b>tap the mic and speak</b> (Hindi or English), or type it. Check the draft and confirm. Jawab tells the customer and, if you leave it on, puts the answer on your website.</p>
+  <div class="sec">Waiting for your answer <span class="count" id="nOpen">0</span></div>
   <section id="open"></section>
-  <h2 style="margin-top:26px">Ready to publish</h2>
-  <section id="publish"><p class="muted">Nothing yet.</p></section>
-  <h2 style="margin-top:26px">Done</h2>
-  <section id="done"><p class="muted">Nothing yet.</p></section>
+  <div class="sec">Ready to publish <span class="count" id="nPub">0</span></div>
+  <section id="publish"></section>
+  <div class="sec">Done <span class="count" id="nDone">0</span></div>
+  <section id="done"></section>
+  <div class="sec">What Jawab knows <span class="count" id="nFacts">0</span><span class="muted" style="font-weight:400">· confirmed by you</span></div>
+  <section id="facts"></section>
 </main>
 <script src="/static/common.js"></script>
+<script src="/static/voice.js"></script>
 <script>
 const { api, esc, ago } = Jawab;
 let data = { gaps: [], facts: [] }, recording = null, freshIds = new Set();
+const I = {
+  mic: '<svg class="i mic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>',
+  stop: '<svg class="i stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>',
+  send: '<svg class="i" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>',
+  check: '<svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>',
+  globe: '<svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+};
 
 function factOf(g) { return data.facts.find((f) => f.id === g.fact_id); }
+const empty = (title, text) => `<div class="empty"><div class="vbars breathe">${"<span></span>".repeat(9)}</div><b>${title}</b><span class="muted">${text}</span></div>`;
 
 function render() {
   const open = data.gaps.filter((g) => g.status === "open");
   const pub = data.gaps.filter((g) => ["answered", "called_back"].includes(g.status));
   const done = data.gaps.filter((g) => ["published", "verified"].includes(g.status));
-  document.getElementById("open").innerHTML = open.length ? open.map(openCard).join("") : `<div class="card muted">No open questions right now. When a caller asks something Jawab doesn’t know, it appears here instantly.</div>`;
-  document.getElementById("publish").innerHTML = pub.length ? pub.map(pubCard).join("") : `<p class="muted">Nothing yet.</p>`;
-  document.getElementById("done").innerHTML = done.length ? done.map(doneCard).join("") : `<p class="muted">Nothing yet.</p>`;
+  document.getElementById("open").innerHTML = open.length ? open.map(openCard).join("")
+    : empty("No questions waiting", "When a caller asks something Jawab doesn’t know, it appears here instantly.");
+  document.getElementById("publish").innerHTML = pub.length ? `<div class="list">${pub.map(pubCard).join("")}</div>` : `<p class="muted none">Nothing yet.</p>`;
+  document.getElementById("done").innerHTML = done.length ? `<div class="list">${done.map(doneCard).join("")}</div>` : `<p class="muted none">Nothing yet.</p>`;
+  const n = (id, v, hot) => { const el = document.getElementById(id); el.textContent = v; el.classList.toggle("hot", !!hot && v > 0); };
+  n("nOpen", open.length, true); n("nPub", pub.length); n("nDone", done.length); n("nFacts", data.facts.length);
+  document.getElementById("facts").innerHTML = data.facts.length ? `<div class="list facts">${data.facts.map((f) => `<div class="item"><div class="item-body"><b>${esc(f.question)}</b><span>${esc(f.answer)}</span></div>${f.published ? `<span class="pill p-green">On website</span>` : ""}</div>`).join("")}</div>` : `<p class="muted none">Nothing yet.</p>`;
 }
 
 function openCard(g) {
   const d = g.draft;
   return `<div class="gap ${freshIds.has(g.id) ? "fresh" : ""}" id="g-${g.id}">
-    <span class="pill p-amber">Customer waiting · ${ago(g.created_at)}</span> ${g.callback_consent ? '<span class="pill p-green">Callback OK</span>' : ""}
-    <p class="q" style="margin:10px 0 2px">${esc(g.question)}</p>
-    <p class="cw" style="margin:0 0 12px">“${esc(g.caller_words)}”</p>
-    <div style="display:flex;align-items:center;gap:12px">
-      <button class="rec" data-rec="${g.id}" title="Tap to record, tap again to send">🎙️</button>
-      <div><b style="font-size:14px" id="rs-${g.id}">${d ? "Draft ready below. Record again to replace it." : "Tap the mic, speak your answer, tap again to send"}</b>
-        <div class="muted">e.g. “Haan, Sunday ko Palasia delivery karte hain, gyarah se paanch baje, assi rupaye charge.”</div></div>
+    <div class="gap-head"><span class="pill p-red"><i class="blink"></i>Customer waiting · ${ago(g.created_at)}</span>${g.callback_consent ? '<span class="pill p-green">Callback OK</span>' : ""}</div>
+    <p class="q">${esc(g.question)}</p>
+    <p class="cw">“${esc(g.caller_words)}”</p>
+    <div class="answerbar" id="ab-${g.id}">
+      <form class="typeans" data-type="${g.id}">
+        <input type="text" name="t" placeholder="Type an answer or tap the mic" autocomplete="off">
+        <button class="send" title="Use text" aria-label="Use text">${I.send}</button>
+      </form>
+      <div class="recline"><div id="vz-${g.id}"></div><span class="rtime" id="rt-${g.id}">0:00</span></div>
+      <button class="rec" data-rec="${g.id}" title="Tap to record, tap again to send" aria-label="Record a voice answer">${I.mic}${I.stop}</button>
     </div>
-    <form class="typeans" data-type="${g.id}" style="display:flex;gap:6px;margin-top:10px">
-      <input type="text" name="t" placeholder="…or type your answer in Hindi or English" autocomplete="off">
-      <button class="btn small ghost">Use text</button>
-    </form>
+    <p class="rstatus" id="rs-${g.id}">${d ? "Draft ready below. Record again to replace it." : "e.g. “Haan, Sunday ko Palasia delivery karte hain, gyarah se paanch baje, assi rupaye charge.”"}</p>
     ${d ? draftForm(g) : ""}
   </div>`;
 }
 
 function draftForm(g) {
   const d = g.draft;
-  return `<div style="margin-top:12px;border-top:1px dashed var(--line);padding-top:10px">
-    <div class="kv">You said: <b>“${esc(d.transcript)}”</b> <span class="muted">(${d.extract_seconds}s)</span></div>
-    ${d.answers_question ? "" : `<p class="pill p-amber" style="margin-top:8px">This may not answer the question — check before confirming.</p>`}
-    <label>FAQ question</label><input type="text" id="q-${g.id}" value="${esc(d.faq_question)}">
-    <label>Answer (English)</label><textarea id="en-${g.id}">${esc(d.answer_en)}</textarea>
-    <label>उत्तर (हिंदी)</label><textarea id="hi-${g.id}" lang="hi">${esc(d.answer_hi)}</textarea>
-    ${d.details_missing ? `<p class="muted">Customers may also ask: ${esc(d.details_missing)}</p>` : ""}
-    <label style="display:flex;gap:8px;align-items:center;font-weight:600;color:var(--ink);margin-top:12px"><input type="checkbox" id="pub-${g.id}" checked> Also put this answer on my website</label>
-    <button class="btn green big" style="margin-top:10px" data-confirm="${g.id}">✓ Confirm — tell the customer</button>
+  return `<div class="draft">
+    <div class="said"><span class="muted">You said</span> “${esc(d.transcript)}” <span class="muted">· ${d.extract_seconds}s</span></div>
+    ${d.answers_question ? "" : `<p class="pill p-amber" style="margin:8px 0 0">This may not answer the question — check before confirming.</p>`}
+    <div class="fields">
+      <label>FAQ question<input type="text" id="q-${g.id}" value="${esc(d.faq_question)}"></label>
+      <label>Answer (English)<textarea id="en-${g.id}">${esc(d.answer_en)}</textarea></label>
+      <label>उत्तर (हिंदी)<textarea id="hi-${g.id}" lang="hi">${esc(d.answer_hi)}</textarea></label>
+    </div>
+    ${d.details_missing ? `<p class="muted" style="margin:10px 2px 0">Customers may also ask: ${esc(d.details_missing)}</p>` : ""}
+    <label class="toggle"><span><b>Also put this on my website</b><small>Published as an FAQ, then checked live</small></span>
+      <input type="checkbox" id="pub-${g.id}" checked><i></i></label>
+    <button class="btn ink big wide" data-confirm="${g.id}">${I.check} Confirm — tell the customer</button>
   </div>`;
 }
 
 function pubCard(g) {
   const f = factOf(g) || {};
-  return `<div class="gap"><span class="pill p-green">${g.callback_channel === "same call" ? "Told on the same call" : g.status === "called_back" ? "Customer called back" : "Waiting for callback"}</span>
-    <p class="q" style="margin:10px 0 4px">${esc(f.question)}</p><p style="margin:0">${esc(f.answer)}</p>
-    ${f.answer_hi ? `<p lang="hi" class="muted" style="margin:4px 0 0">${esc(f.answer_hi)}</p>` : ""}
-    <button class="btn small" style="margin-top:10px" data-publish="${f.id}">Put this on my website</button></div>`;
+  return `<div class="item"><div class="item-body"><span class="tagline">${g.callback_channel === "same call" ? "Told on the same call" : g.status === "called_back" ? "Customer called back" : "Waiting for callback"}</span>
+    <b>${esc(f.question)}</b><span>${esc(f.answer)}</span>
+    ${f.answer_hi ? `<span lang="hi" class="muted">${esc(f.answer_hi)}</span>` : ""}</div>
+    <button class="btn small ink" data-publish="${f.id}">${I.globe} Publish</button></div>`;
 }
 
 function doneCard(g) {
-  const f = factOf(g) || {}, v = g.verification;
-  return `<div class="gap"><span class="pill ${g.status === "verified" ? "p-green" : "p-blue"}">${g.status === "verified" ? "✓ Live on website, verified" : "Publishing… checking the live page"}</span>
-    <p class="q" style="margin:10px 0 4px">${esc(f.question)}</p>
-    ${v ? `<p class="muted" style="margin:0">Checked ${ago(v.checked_at)} · page ${v.http_status || "?"} · visible ${v.visible ? "yes" : "no"} · structured data ${v.structured_data ? "yes" : "no"}</p>` : ""}</div>`;
+  const f = factOf(g) || {}, v = g.verification, ok = g.status === "verified";
+  return `<div class="item"><div class="item-body"><b>${esc(f.question)}</b>
+    <span class="muted">${ok ? "Live on your website, verified" : "Publishing… checking the live page"}${v ? ` · checked ${ago(v.checked_at)} · page ${v.http_status || "?"} · visible ${v.visible ? "yes" : "no"} · structured data ${v.structured_data ? "yes" : "no"}` : ""}</span></div>
+    <span class="tick ${ok ? "ok" : "wait"}">${ok ? I.check : ""}</span></div>`;
 }
 
 async function load() { data = await api("/api/state"); render(); }
@@ -113,8 +134,9 @@ document.addEventListener("submit", async (e) => {
   load();
 });
 
+// Voice answer: while recording, the answer bar becomes live bars that stretch with your voice.
 async function toggleRecord(btn, gapId) {
-  const status = document.getElementById(`rs-${gapId}`);
+  const status = document.getElementById(`rs-${gapId}`), bar = document.getElementById(`ab-${gapId}`);
   if (recording) {
     recording.rec.stop(); btn.classList.remove("on"); status.textContent = "Understanding your answer…"; return;
   }
@@ -122,16 +144,23 @@ async function toggleRecord(btn, gapId) {
   try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { status.textContent = "Microphone permission is needed"; return; }
   const mime = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg"].find((m) => MediaRecorder.isTypeSupported(m)) || "";
   const rec = new MediaRecorder(stream, mime ? { mimeType: mime } : undefined), chunks = [];
+  const vctx = new AudioContext(), tap = JawabVoice.tap(vctx, vctx.createMediaStreamSource(stream));
+  const viz = JawabVoice.bars(document.getElementById(`vz-${gapId}`), { count: 40 });
+  viz.set({ mode: "live", source: (n) => tap.read(n) });
+  const started = Date.now(), timeEl = document.getElementById(`rt-${gapId}`);
+  const timer = setInterval(() => { const s = Math.floor((Date.now() - started) / 1000); timeEl.textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }, 250);
   rec.ondataavailable = (ev) => ev.data.size && chunks.push(ev.data);
   rec.onstop = async () => {
-    stream.getTracks().forEach((tr) => tr.stop());
+    clearInterval(timer); stream.getTracks().forEach((tr) => tr.stop()); vctx.close();
+    bar.classList.remove("on"); bar.classList.add("busy"); viz.set({ mode: "wave" });
     const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
     recording = null;
     const fd = new FormData(); fd.append("audio", blob, "note.webm");
-    try { await api(`/api/gaps/${gapId}/voice`, { method: "POST", body: fd }); } catch (err) { status.textContent = "Could not read that: " + err.message; return; }
+    try { await api(`/api/gaps/${gapId}/voice`, { method: "POST", body: fd }); }
+    catch (err) { bar.classList.remove("busy"); viz.destroy(); status.textContent = "Could not read that: " + err.message; return; }
     load();
   };
-  rec.start(); recording = { rec }; btn.classList.add("on"); status.textContent = "Recording… tap again to send";
+  rec.start(); recording = { rec }; btn.classList.add("on"); bar.classList.add("on"); status.textContent = "Listening… tap the button again to send";
   setTimeout(() => recording && recording.rec === rec && btn.click(), 30000);
 }
 

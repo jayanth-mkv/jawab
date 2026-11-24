@@ -1,46 +1,64 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Try it live · Jawab</title>
 <meta name="description" content="Guided 2-minute demo of Jawab's Missed-Answer Loop: the customer phone and the owner app side by side.">
 <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="try">
 <header class="top"><a class="brand" href="/" style="text-decoration:none">Jaw<span>ab</span><small>Missed-Answer Loop</small></a>
-  <nav><a href="/try" class="on">▶ Try it live</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
+  <nav><a href="/try" class="on">Try it live</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
 </header>
-<main class="wrap" style="max-width:1320px">
-  <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
-    <div><p class="eyebrow">Guided demo · about 2 minutes</p>
-      <h1 style="margin:0">Play both sides: the customer and the owner</h1></div>
-    <button class="btn ghost small" id="reset" style="margin-left:auto">↺ Start over</button>
+<main class="stage" id="stage" data-tab="call">
+  <aside class="rail">
+    <div class="rail-head">
+      <p class="eyebrow"><span class="live"></span>Live demo · 2 min</p>
+      <h1>Play <em>both sides</em> of the call</h1>
+      <p class="sub">Ask the bakery something it doesn’t know, then answer it as the owner.</p>
+    </div>
+
+    <div class="progress" aria-hidden="true"><i data-s="1"></i><i data-s="2"></i><i data-s="3"></i><i data-s="4"></i></div>
+    <ol class="guide" id="guide">
+      <li class="gstep" data-s="1"><span class="n">1</span><div><b>Call and ask something new</b><p>Tap <i>Call the bakery</i>, then <i>✦ Sunday delivery to Palasia?</i> (or just say it). Jawab won’t guess.</p></div></li>
+      <li class="gstep" data-s="2"><span class="n">2</span><div><b>Answer as the owner</b><p>The question appears in the owner app. Tap the mic and speak, or type an answer.</p></div></li>
+      <li class="gstep" data-s="3"><span class="n">3</span><div><b>Confirm</b><p>Check the English + Hindi draft and confirm. Stay on the call: the customer hears it in about a second.</p></div></li>
+      <li class="gstep" data-s="4"><span class="n">4</span><div><b>It’s on the web</b><p>Jawab publishes the FAQ to the bakery’s site and checks the live page.</p></div></li>
+    </ol>
+
+    <div class="banner hidden" id="doneBanner">
+      <div class="banner-top"><span class="ok"><svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>
+        <span>Loop closed in <b id="loopTime">—</b></span></div>
+      <p>Asked on a call, answered by voice, told to the caller, live on the web and verified.</p>
+      <div class="acts"><a class="btn small light" href="/site" target="_blank">Bakery website</a><a class="btn small ghost" href="/dashboard">Answer Loop</a></div>
+    </div>
+
+    <div class="rail-foot">
+      <button class="btn ghost small" id="reset"><svg class="i" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>Start over</button>
+      <p class="muted"><svg class="i" viewBox="0 0 24 24"><path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/></svg>
+        <span>Use headphones so the agent doesn’t hear itself. Prefer two devices? Open <a href="/call">/call</a> and <a href="/owner">/owner</a>.</span></p>
+    </div>
+  </aside>
+
+  <div class="tabs" role="tablist">
+    <button role="tab" data-tab="call" aria-selected="true">Customer</button>
+    <button role="tab" data-tab="owner" aria-selected="false">Owner<i class="badge"></i></button>
   </div>
 
-  <div class="guide" id="guide">
-    <div class="gstep" data-s="1"><b><span class="n">1</span>Call and ask something new</b>Tap 📞 on the phone, then tap <i>✨ Sunday delivery to Palasia?</i> (or just say it). Jawab won’t guess.</div>
-    <div class="gstep" data-s="2"><b><span class="n">2</span>Answer as the owner</b>The question pops up on the right. Tap 🎙️ and speak, or type an answer.</div>
-    <div class="gstep" data-s="3"><b><span class="n">3</span>Confirm</b>Check the English + Hindi draft and confirm. Stay on the call: the customer hears it in about a second.</div>
-    <div class="gstep" data-s="4"><b><span class="n">4</span>It’s on the web</b>Jawab publishes the FAQ to the bakery’s site and checks the live page.</div>
-  </div>
-
-  <div class="banner hidden" id="doneBanner">
-    <span class="dot green sm">✓</span>
-    <span>Loop closed in <span id="loopTime">—</span>: asked on a call, answered by voice, told to the caller, live on the web and verified.</span>
-    <a class="btn small green" href="/site" target="_blank" style="margin-left:auto">See the bakery website</a>
-    <a class="btn small ghost" href="/dashboard">Open the Answer Loop</a>
-  </div>
-
-  <div class="panes">
-    <div><p class="label">📞 Customer’s phone</p><iframe id="callFrame" src="/call?embed=1" allow="microphone; autoplay" title="Customer phone"></iframe></div>
-    <div><p class="label">🎙️ Owner app (Ritu ji)</p><iframe id="ownerFrame" src="/owner?embed=1" allow="microphone; autoplay" title="Owner app"></iframe></div>
-  </div>
-  <p class="muted" style="margin-top:12px">Use headphones so the agent doesn’t hear itself. Afterwards, call again and ask the same question: Jawab now answers instantly.
-    Prefer separate tabs or two devices? Open <a href="/call">/call</a> and <a href="/owner">/owner</a>.</p>
+  <section class="dev dev-call" data-pane="call">
+    <p class="pane-label"><span class="num">01</span>The customer</p>
+    <div class="frame phone-frame"><iframe id="callFrame" src="/call?embed=1" allow="microphone; autoplay" title="Customer phone"></iframe></div>
+  </section>
+  <section class="dev dev-owner" data-pane="owner">
+    <p class="pane-label"><span class="num">02</span>The owner, Ritu ji</p>
+    <div class="frame sheet"><iframe id="ownerFrame" src="/owner?embed=1" allow="microphone; autoplay" title="Owner app"></iframe></div>
+  </section>
 </main>
 <script src="/static/common.js"></script>
 <script>
 const { api, secs } = Jawab;
+const CHECK = '<svg class="i" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>';
+const stage = document.getElementById("stage");
 
 // Which guide step are we on? Derived from the newest gap's status.
 function stepOf(data) {
@@ -52,6 +70,14 @@ function stepOf(data) {
   return { step: 4, g };
 }
 
+// On phones only one device fits: tabs switch between them, and follow the loop on their own.
+function showTab(t) {
+  stage.dataset.tab = t;
+  document.querySelectorAll(".tabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === t));
+}
+document.querySelector(".tabs").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) showTab(b.dataset.tab); });
+
+let lastStep = 0;
 async function refresh() {
   let data;
   try { data = await api("/api/state"); } catch { return; }
@@ -60,8 +86,17 @@ async function refresh() {
     const n = +el.dataset.s;
     el.classList.toggle("done", n < step);
     el.classList.toggle("now", n === step);
-    el.querySelector(".n").textContent = n < step ? "✓" : n;
+    el.querySelector(".n").innerHTML = n < step ? CHECK : n;
   });
+  document.querySelectorAll(".progress i").forEach((el) => {
+    el.className = +el.dataset.s < step ? "done" : +el.dataset.s === step ? "now" : "";
+  });
+  stage.classList.toggle("owner-needed", step === 2 || step === 3);
+  if (lastStep && step !== lastStep) {
+    if (step === 2) showTab("owner");
+    else if (step === 4) showTab("call");
+  }
+  lastStep = step;
   const done = step === 5;
   document.getElementById("doneBanner").classList.toggle("hidden", !done);
   if (done && g.times) document.getElementById("loopTime").textContent = secs(g.times.verified - g.times.open);
@@ -72,6 +107,7 @@ document.getElementById("reset").onclick = async () => {
   await api("/api/reset", { method: "POST" });
   document.getElementById("callFrame").src = "/call?embed=1";
   document.getElementById("ownerFrame").src = "/owner?embed=1";
+  showTab("call");
   refresh();
 };
 

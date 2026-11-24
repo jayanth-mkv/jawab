@@ -5,54 +5,83 @@
 <title>Customer call · Jawab</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
-<body>
+<body class="call">
 <header class="top"><a class="brand" href="/" style="text-decoration:none">Jaw<span>ab</span><small>Missed-Answer Loop</small></a>
-  <nav><a href="/try" class="cta">▶ Try it live</a><a href="/call" class="on">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
+  <nav><a href="/try" class="cta">Try it live</a><a href="/call" class="on">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
 </header>
 <main class="wrap">
-  <div class="grid g2">
+  <div class="grid g2" style="align-items:center">
     <section class="explain">
       <p class="eyebrow">Customer call</p>
       <h1>Call the bakery</h1>
-      <p class="lead">You are a customer calling <b>Sweet Crumbs Bakery, Indore</b>. Tap the green button and speak in Hindi, English or both, or tap a suggested question. Tip: use headphones so the agent doesn’t hear itself.</p>
-      <p><a class="btn" href="/try">▶ Easier: guided demo with the owner app side by side</a></p>
-      <div class="card">
+      <p class="lead">You are a customer calling <b>Sweet Crumbs Bakery, Indore</b>. Tap call and speak in Hindi, English or both, or tap a suggested question. Tip: use headphones so the agent doesn’t hear itself.</p>
+      <p><a class="btn ink" href="/try">Easier: guided demo with the owner app side by side</a></p>
+      <div class="sheet-group">
         <h2>What to watch</h2>
-        <ol class="muted" style="font-size:14px;line-height:1.7">
+        <ol class="muted" style="font-size:14px;line-height:1.7;margin:0;padding-left:18px">
           <li>It answers known questions from the owner’s confirmed facts.</li>
           <li>For an unknown question it <b>does not guess</b>: it asks consent and reports a gap.</li>
           <li>Open the <a href="/owner" target="_blank">Owner app</a>: answer with a Hindi voice note and confirm.</li>
           <li>Still on the call? Jawab tells you right away. Hung up? <b>Your phone rings</b> with the callback.</li>
         </ol>
-        <p class="muted" id="lat"></p>
+        <p class="muted" id="lat" style="margin:10px 0 0"></p>
       </div>
     </section>
     <section>
-      <div class="phone" id="phone">
-        <div class="who"><div class="avatar">🎂</div><b>Sweet Crumbs Bakery</b><small>+91 731 400 1234 · Vijay Nagar, Indore</small></div>
-        <div class="status" id="status">Tap the green button to call</div>
-        <div class="meter"><i id="lvl"></i></div>
+      <div class="phone" id="phone" data-state="idle">
+        <div class="glow"></div>
+        <div class="sbar"><span id="clock">9:41</span>
+          <svg viewBox="0 0 54 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y=".5" width="3" height="11.5" rx="1"/><rect x="28" y="1" width="22" height="10" rx="3" fill="none" stroke="currentColor" stroke-width="1.2"/><rect x="30" y="3" width="15" height="6" rx="1.5"/><rect x="51" y="4" width="2" height="4" rx="1"/></svg></div>
+        <div class="who"><span class="avatar">SC</span><div><b>Sweet Crumbs Bakery</b><small>+91 731 400 1234 · Vijay Nagar</small></div><span class="live-tag" id="liveTag"><i></i><span id="speaker">Live</span></span></div>
+        <div class="orb"><canvas id="orb"></canvas></div>
+        <div class="status" id="status">Tap call to talk to the bakery</div>
         <div class="feed" id="feed"></div>
-        <div class="controls">
-          <button class="round call" id="callBtn" title="Call">📞</button>
-          <button class="round end" id="endBtn" title="Hang up" disabled>✕</button>
+        <div class="chips" id="chips">
+          <button class="chip" data-ask="Eggless cake milta hai? Ek kilo kitne ka hai?">Eggless cake price?</button>
+          <button class="chip" data-ask="Sunday ko aap kab tak khule ho?">Sunday timings?</button>
+          <button class="chip unknown" data-ask="Sunday ko Palasia mein delivery karte ho?" title="The bakery hasn't told Jawab this yet">Sunday delivery to Palasia?</button>
+          <button class="chip unknown" data-ask="Sugar-free cake banate ho?" title="The bakery hasn't told Jawab this yet">Sugar-free cake?</button>
         </div>
-        <div class="chips" id="chips"><small>Tap to ask (starts the call if needed)</small>
-          <button class="chip" data-ask="Eggless cake milta hai? Ek kilo kitne ka hai?">🎂 Eggless cake price?</button>
-          <button class="chip" data-ask="Sunday ko aap kab tak khule ho?">🕘 Sunday timings?</button>
-          <button class="chip unknown" data-ask="Sunday ko Palasia mein delivery karte ho?" title="The bakery hasn't told Jawab this yet">✨ Sunday delivery to Palasia?</button>
-          <button class="chip unknown" data-ask="Sugar-free cake banate ho?" title="The bakery hasn't told Jawab this yet">✨ Sugar-free cake?</button>
+        <div class="dock">
+          <button class="glass end" id="endBtn" title="Hang up" aria-label="Hang up" disabled><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+          <form class="typebox" id="typeForm"><input type="text" id="typeIn" placeholder="Type instead…" autocomplete="off">
+            <button id="typeBtn" disabled title="Send" aria-label="Send"><svg class="i" viewBox="0 0 24 24"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg></button></form>
+          <button class="callpill" id="callBtn"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span id="callLabel">Call the bakery</span></button>
         </div>
-        <form class="typebox" id="typeForm"><input type="text" id="typeIn" placeholder="Noisy room? Type instead…" autocomplete="off"><button class="btn small" disabled id="typeBtn">Send</button></form>
+        <div class="homebar"></div>
       </div>
     </section>
   </div>
 </main>
 <script src="/static/common.js"></script>
+<script src="/static/voice.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 let ws, micCtx, playCtx, micStream, player, timerId, t0, lastCallId = null, pendingCallback = null, agentHungUp = false, queuedSamples = 0;
-const feed = $("feed");
+let micTap = null, agentTap = null;
+const feed = $("feed"), phone = $("phone");
+
+// The orb: idle breathing, a pulse while connecting/ringing, and the live voice once on the call
+// (warm red for the bakery speaking, cooler white for you).
+const orb = JawabVoice.orb($("orb"), { onLevel: (l) => phone.style.setProperty("--lv", l.toFixed(3)) });
+function voiceLevel() {
+  const a = agentTap ? agentTap.level() : 0, m = micTap ? micTap.level() : 0;
+  const who = a > 0.07 ? "agent" : m > 0.09 ? "caller" : "";
+  if (phone.dataset.speaker !== who) {
+    phone.dataset.speaker = who;
+    $("speaker").textContent = who === "agent" ? "Bakery speaking" : who === "caller" ? "You" : "Listening";
+    if (who) orb.set({ tint: who });
+  }
+  return who === "agent" ? a : who === "caller" ? m : Math.max(a, m);
+}
+function setState(s) {
+  phone.dataset.state = s;
+  orb.set(s === "live" ? { mode: "live", source: voiceLevel } : { mode: s === "idle" ? "idle" : "wave", tint: "agent" });
+  if (s !== "live") { phone.dataset.speaker = ""; $("speaker").textContent = "Live"; }
+}
+setState("idle");
+const tick = () => { const d = new Date(); $("clock").textContent = `${d.getHours() % 12 || 12}:${String(d.getMinutes()).padStart(2, "0")}`; };
+tick(); setInterval(tick, 15000);
 
 // Partial transcripts stream in as chunks; the final event repeats the whole utterance,
 // so it replaces the bubble instead of being appended.
@@ -77,30 +106,34 @@ async function startAudio() {
   micCtx = new AudioContext({ sampleRate: 16000 });
   await micCtx.audioWorklet.addModule("/static/pcm-recorder.js");
   const rec = new AudioWorkletNode(micCtx, "pcm-recorder");
-  micCtx.createMediaStreamSource(micStream).connect(rec);
+  const src = micCtx.createMediaStreamSource(micStream);
+  src.connect(rec);
+  micTap = JawabVoice.tap(micCtx, src);
   rec.port.onmessage = (e) => { if (ws && ws.readyState === 1) ws.send(e.data); };
   playCtx = new AudioContext({ sampleRate: 24000 });
   await playCtx.audioWorklet.addModule("/static/pcm-player.js");
   player = new AudioWorkletNode(playCtx, "pcm-player", { outputChannelCount: [2] });
   player.connect(playCtx.destination);
-  player.port.onmessage = (e) => { queuedSamples = e.data.queued || 0; $("lvl").style.width = Math.min(100, e.data.level * 220) + "%"; };
+  agentTap = JawabVoice.tap(playCtx, player);
+  player.port.onmessage = (e) => { queuedSamples = e.data.queued || 0; };
 }
 function stopAudio() {
   micStream && micStream.getTracks().forEach((t) => t.stop());
   micCtx && micCtx.close(); playCtx && playCtx.close();
-  micStream = micCtx = playCtx = player = null; $("lvl").style.width = "0";
+  micStream = micCtx = playCtx = player = micTap = agentTap = null;
 }
 
 async function connect(mode, gapId) {
   feed.innerHTML = ""; $("callBtn").disabled = true; t0 = null; agentHungUp = false;
+  setState("connecting");
   $("status").textContent = mode === "callback" ? "Connecting callback…" : "Calling…";
-  try { await startAudio(); } catch (e) { $("status").textContent = "Microphone permission is needed"; $("callBtn").disabled = false; return; }
+  try { await startAudio(); } catch (e) { setState("idle"); $("status").textContent = "Microphone permission is needed"; $("callBtn").disabled = false; return; }
   const q = new URLSearchParams({ code: Jawab.code(), mode });
   if (gapId) q.set("gap", gapId);
   ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws/call?${q}`);
   ws.binaryType = "arraybuffer";
   ws.onopen = () => {
-    t0 = Date.now(); $("endBtn").disabled = false; $("typeBtn").disabled = false; setTimeout(flushQueued, 6000);
+    t0 = Date.now(); setState("live"); $("endBtn").disabled = false; $("typeBtn").disabled = false; setTimeout(flushQueued, 6000);
     timerId = setInterval(() => { const s = Math.round((Date.now() - t0) / 1000); $("status").textContent = `${mode === "callback" ? "Callback" : "On call"} · ${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`; }, 500);
   };
   ws.onmessage = (e) => {
@@ -139,20 +172,21 @@ function hangup(fromServer) {
   if (ws && ws.readyState <= 1 && !fromServer) { try { ws.send(JSON.stringify({ type: "hangup" })); } catch {} ws.close(); }
   ws = null; clearInterval(timerId); stopAudio();
   $("endBtn").disabled = true; $("typeBtn").disabled = true; $("callBtn").disabled = false;
-  if (!pendingCallback) $("status").textContent = "Call ended";
+  if (!pendingCallback) { setState("idle"); $("status").textContent = "Call ended"; $("callLabel").textContent = "Call again"; }
 }
 
 // Incoming callback when the owner answers after the customer hung up.
 let ringTimer;
 function ring(gapId) {
   pendingCallback = gapId;
-  $("phone").classList.add("ringing");
-  $("status").textContent = "📲 Incoming call from Sweet Crumbs Bakery — tap green to answer";
+  setState("ringing");
+  $("status").textContent = "Incoming call from Sweet Crumbs Bakery";
+  $("callLabel").textContent = "Answer";
   const ctx = new AudioContext();
   const beep = () => { const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = 880; g.gain.value = .06; o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .35); };
   beep(); ringTimer = setInterval(beep, 1400);
 }
-function stopRing() { $("phone").classList.remove("ringing"); clearInterval(ringTimer); }
+function stopRing() { clearInterval(ringTimer); $("callLabel").textContent = "Call the bakery"; }
 
 $("callBtn").onclick = () => {
   if (pendingCallback) { const g = pendingCallback; pendingCallback = null; stopRing(); connect("callback", g); }
