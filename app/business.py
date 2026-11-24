@@ -21,7 +21,7 @@ SEED_FACTS = [
     ("How much does a cake cost?", "Half-kilo cakes start at 450 rupees and one-kilo cakes start at 650 rupees. Designer cakes are priced on request."),
     ("Do you make custom birthday cakes?", "Yes. Custom and photo cakes need at least 24 hours' notice."),
     ("Where is the shop?", "Shop 14, Scheme 54, Vijay Nagar, Indore."),
-    ("Do you deliver?", "Yes, we deliver within Vijay Nagar and nearby areas from Monday to Saturday. The delivery fee is 50 rupees."),
+    ("Do you deliver?", "Yes, we deliver within Vijay Nagar. The delivery fee is 50 rupees."),
     ("How can I pay?", "We accept UPI, cards and cash."),
 ]
 

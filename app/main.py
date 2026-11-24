@@ -436,7 +436,7 @@ async def call(ws: WebSocket) -> None:
                        median_first_audio_ms=round(statistics.median(first_audio_ms)) if first_audio_ms else None)
         try:
             await ws.close()
-        except RuntimeError:
+        except (RuntimeError, WebSocketDisconnect):
             pass
 
 
