@@ -20,11 +20,11 @@ import wave
 from pathlib import Path
 
 import httpx
+from google.genai import types
 from PIL import Image, ImageDraw, ImageFont
 from playwright.async_api import Page, async_playwright
 
 from bench.e2e import tts_client
-from google.genai import types
 
 OUT = Path(__file__).parent / "out" / "demo"
 W, H = 640, 720  # each half of a 1280x720 video
