@@ -84,7 +84,7 @@ function stopAudio() {
 }
 
 async function connect(mode, gapId) {
-  feed.innerHTML = ""; $("callBtn").disabled = true;
+  feed.innerHTML = ""; $("callBtn").disabled = true; t0 = null;
   $("status").textContent = mode === "callback" ? "Connecting callback…" : "Calling…";
   try { await startAudio(); } catch (e) { $("status").textContent = "Microphone permission is needed"; $("callBtn").disabled = false; return; }
   const q = new URLSearchParams({ code: Jawab.code(), mode });
@@ -108,7 +108,11 @@ async function connect(mode, gapId) {
     else if (m.type === "latency") $("lat").textContent = `Last response started ${m.ms} ms after you spoke.`;
     else if (m.type === "time_limit") { sys("Demo call limit reached"); hangup(); }
   };
-  ws.onclose = (e) => { if (e.code === 4401) { alert("Access code required"); } hangup(true); };
+  ws.onclose = (e) => {
+    hangup(true);
+    if (e.code === 4401) { $("status").textContent = "Access code needed"; Jawab.askCode(); }
+    else if (e.code === 1006 && !t0) $("status").textContent = "Could not connect. Check your network and try again";
+  };
 }
 
 function hangup(fromServer) {

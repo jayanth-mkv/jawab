@@ -8,10 +8,17 @@ const Jawab = (() => {
   const code = () => {
     try { return localStorage.getItem(KEY) || ""; } catch { return params.get("code") || ""; }
   };
-  const askCode = () => {
-    const c = prompt("Enter the demo access code");
-    if (c) { try { localStorage.setItem(KEY, c); } catch {} location.reload(); }
+  let asking = false;
+  const askCode = (msg) => {
+    if (asking) return; asking = true;
+    const c = prompt(msg || "Enter the demo access code (it is on the GitHub & Demo slide of the deck)");
+    asking = false;
+    if (c && c.trim()) { try { localStorage.setItem(KEY, c.trim()); } catch {} location.reload(); }
   };
+  // Check the code as soon as the page loads, so a missing/wrong code is caught before the first call.
+  fetch("/api/state", { headers: { "x-access-code": code() } })
+    .then((r) => { if (r.status === 401) askCode(code() ? "That access code didn't work. Enter the demo access code" : undefined); })
+    .catch(() => {});
 
   async function api(path, opts = {}) {
     const res = await fetch(path, { ...opts, headers: { "x-access-code": code(), ...(opts.headers || {}) } });
@@ -47,5 +54,5 @@ const Jawab = (() => {
     ["verified", "Verified live"],
   ];
 
-  return { api, events, esc, ago, secs, code, STEPS };
+  return { api, events, esc, ago, secs, code, askCode, STEPS };
 })();

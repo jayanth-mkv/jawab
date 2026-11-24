@@ -302,10 +302,11 @@ async def probe(gap_id: str, request: Request) -> dict:
 async def call(ws: WebSocket) -> None:
     """Browser <-> Gemini Live bridge. Binary frames: PCM16 audio. Text frames: JSON control/events."""
     params = ws.query_params
-    if config.ACCESS_CODE and params.get("code") != config.ACCESS_CODE:
-        await ws.close(code=4401)
-        return
+    # Accept first so the browser receives the 4401 close code (a pre-accept close is just a 403 to the client).
     await ws.accept()
+    if config.ACCESS_CODE and params.get("code") != config.ACCESS_CODE:
+        await ws.close(code=4401, reason="access code required")
+        return
 
     mode = params.get("mode", "inbound")
     call_id = params.get("call_id") or new_id()
