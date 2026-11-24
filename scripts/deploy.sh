@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # Build the image with Cloud Build and roll it out through Terraform.
 #   GCLOUD_ACCOUNT=you@example.com scripts/deploy.sh
+# or, with a named gcloud configuration for the project:
+#   CLOUDSDK_ACTIVE_CONFIG_NAME=jawab scripts/deploy.sh
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-ACCOUNT="${GCLOUD_ACCOUNT:?set GCLOUD_ACCOUNT to the gcloud account that owns the project}"
+ACCOUNT="${GCLOUD_ACCOUNT:-$(gcloud config get-value account 2>/dev/null)}"
+: "${ACCOUNT:?set GCLOUD_ACCOUNT (or a gcloud configuration) to the account that owns the project}"
 export GOOGLE_OAUTH_ACCESS_TOKEN="$(gcloud auth print-access-token --account="$ACCOUNT")"
 
 PROJECT="$(terraform -chdir=infra output -raw project_id)"

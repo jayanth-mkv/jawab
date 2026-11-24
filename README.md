@@ -106,6 +106,8 @@ uv run pytest                                                                   
 cd infra && cp ../infra/terraform.tfvars.example terraform.tfvars   # set billing_account
 terraform init && terraform apply
 GCLOUD_ACCOUNT=you@example.com ../scripts/deploy.sh                # Cloud Build -> Terraform rollout
+#   or keep a named gcloud config: gcloud config configurations create jawab --no-activate, then
+#   CLOUDSDK_ACTIVE_CONFIG_NAME=jawab ../scripts/deploy.sh          # uses that config's account
 terraform output -raw access_code                                  # demo access code
 ```
 
