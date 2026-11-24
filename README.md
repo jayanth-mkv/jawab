@@ -43,7 +43,7 @@ Then call again and ask the same question: Jawab answers instantly. **↺ Start 
 | --- | --- | --- |
 | `/` | Overview | The loop in six steps, a link to the guided demo and the video. |
 | `/try` | **Judges and first-time visitors** | Guided, one-screen demo (both panes are the real `/call` and `/owner` pages in embed mode). |
-| `/call` | The customer | Phone UI with live transcripts. **Suggested-question chips** work without a microphone (they start the call if needed). If the customer hangs up before the owner answers, the phone **rings back**. |
+| `/call` | The customer | Phone UI with live transcripts. **Suggested-question chips** work without a microphone (they start the call if needed). If the customer hangs up before the owner answers, the phone **rings back**. When the caller is done, the agent says goodbye and **hangs up by itself**. |
 | `/owner` | The business owner | Open questions, a 🎙️ voice note **or typed answer** (for a noisy shop, or anyone who doesn't speak Hindi), editable EN/HI draft, one-tap confirm + publish. |
 | `/dashboard` | Proof | Every gap with its five timed steps, page verification results and the AI-search probe. |
 | `/site` | The public | The bakery's own website: FAQ + `FAQPage` structured data that Google and AI assistants read. |
@@ -86,7 +86,7 @@ Browser (customer phone / owner app / dashboard)
    ▼
 Cloud Run (FastAPI, single instance, non-root container)
    ├── ADK Runner.run_live ──► Gemini 3.8 Live (Vertex AI, us-central1)
-   │      tool: report_unanswered_question  ·  [OWNER_ANSWER] injection mid-call
+   │      tools: report_unanswered_question, end_call  ·  [OWNER_ANSWER] injection mid-call
    ├── Owner voice note ──► Gemini 3.5 Flash-Lite (structured output: transcript, EN/HI answer, FAQ question)
    ├── /site: public page with FAQ + FAQPage JSON-LD
    ├── Verifier: re-fetch live page · Gemini + Google Search grounding probe
@@ -127,6 +127,8 @@ AudioWorklet. Patterns adapted from Google's [adk-samples voice agent](https://g
 
 - Speaks only from owner-confirmed facts; never invents prices, timings, areas or policies.
 - Introduces itself as an AI assistant; asks consent before calling back.
+- Ends calls itself (`end_call`) only after a goodbye: when the caller is done, or after one warning to an abusive caller;
+  never while a caller is waiting for the owner's answer. The goodbye finishes playing before the line drops.
 - Owner confirms every fact and approves every published answer; confirmed ≠ published.
 - Public demo protected by an access code, single-instance cap, per-call time limit and a billing budget.
 
