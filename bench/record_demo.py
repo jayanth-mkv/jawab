@@ -238,7 +238,7 @@ async def main() -> None:
     card(OUT / "intro.png", "Jawab", ["The voice agent that learns from every call it can’t answer.",
                                        "Build 2036 · Frontier 06 · Indore MSMEs", "Live prototype: Gemini 3.8 Live + ADK + Cloud Run"])
     card(OUT / "outro.png", "One answer, everywhere.", ["Phone · website · AI search — verified.",
-                                                         "github.com/jayingenai/jawab", "Team Jawab · Jayanth-MKV"])
+                                                         "github.com/jayanth-mkv/jawab", "Team Jawab · Jayanth-MKV"])
     rec_delay = max(0, int((t_rec - T0) * 1000))
     own_delay = max(0, int((t_owner - T0) * 1000) + 300)
     main_mp4 = OUT / "main.mp4"
