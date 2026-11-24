@@ -58,7 +58,7 @@ def code_of(request: Request) -> str | None:
 
 # ---------------------------------------------------------------- pages
 
-for _page in ("call", "owner", "dashboard", "demo"):
+for _page in ("try", "call", "owner", "dashboard", "demo"):
     def _make(page: str):
         async def _serve() -> FileResponse:
             return FileResponse(WEB / f"{page}.html")
@@ -190,6 +190,27 @@ async def owner_voice(gap_id: str, request: Request, audio: UploadFile = File(..
     return gap["draft"]
 
 
+class TextAnswer(BaseModel):
+    text: str
+
+
+@app.post("/api/gaps/{gap_id}/text")
+async def owner_text(gap_id: str, body: TextAnswer, request: Request) -> dict:
+    """Typed alternative to the voice note (noisy room, no microphone, or a judge who doesn't speak Hindi)."""
+    check_code(code_of(request))
+    gap = await store.get_gap(gap_id)
+    if not gap:
+        raise HTTPException(404, "gap not found")
+    text = body.text.strip()[:1000]
+    if not text:
+        raise HTTPException(400, "answer is empty")
+    fact, seconds = await extract_fact(None, "", gap["question"], gap.get("caller_words", ""), text=text)
+    gap["draft"] = {**fact.model_dump(), "extract_seconds": round(seconds, 2), "typed": True}
+    await store.put_gap(gap)
+    events.publish("gap", gap=gap)
+    return gap["draft"]
+
+
 class ConfirmBody(BaseModel):
     faq_question: str
     answer_en: str
@@ -205,7 +226,8 @@ async def owner_confirm(gap_id: str, body: ConfirmBody, request: Request) -> dic
         raise HTTPException(404, "gap not found")
     fact = {
         "id": new_id(), "question": body.faq_question.strip(), "answer": body.answer_en.strip(),
-        "answer_hi": body.answer_hi.strip(), "source": "owner voice note", "status": "confirmed",
+        "answer_hi": body.answer_hi.strip(),
+        "source": "owner (typed)" if (gap.get("draft") or {}).get("typed") else "owner voice note", "status": "confirmed",
         "published": False, "gap_id": gap_id, "created_at": now(),
         "transcript": (gap.get("draft") or {}).get("transcript", ""),
     }
@@ -341,6 +363,9 @@ async def call(ws: WebSocket) -> None:
         await store.put_gap(callback_gap)
         events.publish("gap", gap=callback_gap)
         lrq.send_content(types.Content(role="user", parts=[types.Part(text="[CALL_CONNECTED] The customer picked up. Speak now.")]))
+    else:
+        # The bakery picks up with a greeting, so the caller never hears dead air.
+        lrq.send_content(types.Content(role="user", parts=[types.Part(text="[CALL_CONNECTED] Incoming call. Answer the phone now.")]))
 
     async def upstream() -> None:
         while True:

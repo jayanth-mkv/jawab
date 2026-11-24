@@ -17,6 +17,49 @@ only from facts the owner has confirmed. When a caller asks something it doesn't
 We call this the **Missed-Answer Loop**: one spoken answer from the owner fixes the phone line, the website and
 AI search at once.
 
+## Try it in 2 minutes
+
+**Live:** https://jawab-uwp55gclza-uc.a.run.app/try (the page asks for the demo access code once; it is in the
+submission deck, and a link ending in `?code=…` fills it in for you). Use headphones so the agent doesn't hear itself.
+
+The **Try it live** page (`/try`) puts the customer's phone and the owner app side by side on one screen, with a
+4-step guide at the top that moves forward on its own as you go:
+
+| Step | You do | What happens |
+| --- | --- | --- |
+| 1 · Call and ask something new | Tap 📞, then tap the ✨ **Sunday delivery to Palasia?** chip (or just say it) | Jawab answers known questions from confirmed facts. For this one it **doesn't guess**: it asks consent to call back and files a gap. |
+| 2 · Answer as the owner | The question pops up in the owner app. Tap 🎙️ and speak, or **type** the answer | Gemini turns it into an English + Hindi FAQ draft in about 3 s. |
+| 3 · Confirm | Check the draft, keep **"Also put this answer on my website"** ticked, tap Confirm | The waiting caller hears *"Ritu ji ne abhi confirm kiya hai…"* about a second later. |
+| 4 · It's on the web | Nothing: it happens on its own | The FAQ is published with `FAQPage` JSON-LD and the live page is re-checked. A banner shows the total loop time and links to the bakery site and dashboard. |
+
+Then call again and ask the same question: Jawab answers instantly. **↺ Start over** resets the demo.
+
+### Every page
+
+| Page | For | Notes |
+| --- | --- | --- |
+| `/` | Overview | The loop in six steps, a link to the guided demo and the video. |
+| `/try` | **Judges and first-time visitors** | Guided, one-screen demo (both panes are the real `/call` and `/owner` pages in embed mode). |
+| `/call` | The customer | Phone UI with live transcripts. **Suggested-question chips** work without a microphone (they start the call if needed). If the customer hangs up before the owner answers, the phone **rings back**. |
+| `/owner` | The business owner | Open questions, a 🎙️ voice note **or typed answer** (for a noisy shop, or anyone who doesn't speak Hindi), editable EN/HI draft, one-tap confirm + publish. |
+| `/dashboard` | Proof | Every gap with its five timed steps, page verification results and the AI-search probe. |
+| `/site` | The public | The bakery's own website: FAQ + `FAQPage` structured data that Google and AI assistants read. |
+| `/demo` | Anyone | The 95-second recorded walkthrough. |
+
+### Design
+
+The app uses the same visual language as our Build 2036 deck, so the demo, the deck and the video read as one product:
+a white canvas, ink-black Arial headings, a **red (`#d7191f`) accent** (primary buttons, active step, the bottom bar),
+soft-grey cards, and colored icon circles for each step. The bakery's public site (`/site`) keeps its own warm
+bakery style on purpose, because it stands for the business's website, not Jawab's. All tokens live in
+`web/static/style.css`; the layout works down to phone width.
+
+### Access code
+
+The public demo is protected by an access code (Secret Manager → Cloud Run env). Each page checks it as soon as it
+loads and prompts if it is missing or wrong; `?code=…` on any link stores it. A call without a valid code is accepted
+and then closed with WebSocket code `4401`, so the page can ask for the code instead of failing silently.
+
 ## Measured on the deployed service
 
 | Metric (Cloud Run, us-central1, measured from India) | Result |
@@ -66,7 +109,7 @@ GCLOUD_ACCOUNT=you@example.com ../scripts/deploy.sh                # Cloud Build
 terraform output -raw access_code                                  # demo access code
 ```
 
-Open `/call` and `/owner` side by side. Ask the bakery *"Sunday ko Palasia delivery karte ho?"*, answer it from the
+Open `/try` (or `/call` and `/owner` side by side). Ask the bakery *"Sunday ko Palasia delivery karte ho?"*, answer it from the
 owner app with a voice note, and watch `/dashboard` and `/site`.
 
 ## Built with

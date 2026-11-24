@@ -39,17 +39,21 @@ class ExtractedFact(BaseModel):
 EXTRACT_PROMPT = """A customer of {name} ({city}) asked: "{question}"
 The customer's own words were: "{caller_words}"
 
-The attached audio is the owner's voice note replying to that question. It may be in Hindi,
+The attached audio (or typed text) is the owner's reply to that question. It may be in Hindi,
 English or a mix. Transcribe it, then turn ONLY what the owner said into a customer-facing answer.
 Do not add prices, times, areas or conditions the owner did not say."""
 
 
-async def extract_fact(audio: bytes, mime_type: str, question: str, caller_words: str) -> tuple[ExtractedFact, float]:
+async def extract_fact(audio: bytes | None, mime_type: str, question: str, caller_words: str,
+                       text: str = "") -> tuple[ExtractedFact, float]:
+    """Owner's answer (a voice note, or typed text) -> structured bilingual fact."""
     t0 = time.perf_counter()
+    answer_part = (types.Part.from_bytes(data=audio, mime_type=mime_type) if audio
+                   else f"The owner typed this answer instead of recording a voice note (use it as the transcript): {text}")
     resp = await client().aio.models.generate_content(
         model=config.TEXT_MODEL,
         contents=[
-            types.Part.from_bytes(data=audio, mime_type=mime_type),
+            answer_part,
             EXTRACT_PROMPT.format(**PROFILE, question=question, caller_words=caller_words),
         ],
         config=types.GenerateContentConfig(

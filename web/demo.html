@@ -7,13 +7,15 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header class="top"><div class="brand">Jaw<span>ab</span></div>
-  <nav><a href="/">Home</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a class="on" href="/demo">Demo video</a></nav>
+<header class="top"><a class="brand" href="/" style="text-decoration:none">Jaw<span>ab</span><small>Missed-Answer Loop</small></a>
+  <nav><a href="/try" class="cta">▶ Try it live</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo" class="on">Demo video</a></nav>
 </header>
 <main class="wrap">
+  <p class="eyebrow">Demo video · 95 seconds</p>
   <h1>Demo: the Missed-Answer Loop</h1>
   <p class="lead">Recorded automatically against the live service: two real browsers (customer phone left, owner app right), each with a microphone fed by Hindi speech. Everything you see — the Gemini Live call, the gap, the voice note, the mid-call answer, publishing and verification — happened for real.</p>
   <video src="/static/jawab-demo.mp4" controls playsinline preload="metadata" style="width:100%;max-width:1100px;border-radius:14px;box-shadow:var(--shadow);background:#000"></video>
+  <p><a class="btn" href="/try">▶ Now try it yourself</a></p>
   <p class="muted">Source and recorder: <a href="https://github.com/jayingenai/jawab">github.com/jayingenai/jawab</a> (<code>bench/record_demo.py</code>).</p>
 </main>
 </body>

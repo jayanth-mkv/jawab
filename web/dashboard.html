@@ -6,18 +6,18 @@
 <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-<header class="top"><div class="brand">Jaw<span>ab</span></div>
-  <nav><a href="/">Home</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a class="on" href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
+<header class="top"><a class="brand" href="/" style="text-decoration:none">Jaw<span>ab</span><small>Missed-Answer Loop</small></a>
+  <nav><a href="/try" class="cta">▶ Try it live</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard" class="on">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
 </header>
 <main class="wrap">
   <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
-    <div><h1>The Missed-Answer Loop</h1>
+    <div><p class="eyebrow">Answer Loop</p><h1>The Missed-Answer Loop</h1>
       <p class="lead" style="margin:0">Every question Jawab couldn’t answer, tracked from the call to a verified answer on the web.</p></div>
     <button class="btn ghost small" id="reset" style="margin-left:auto">Reset demo</button>
   </div>
   <div class="grid g6" style="margin:18px 0" id="stats"></div>
   <div class="card"><h2>Questions</h2><div id="gaps"></div></div>
-  <div class="card" style="margin-top:16px"><h2>What Jawab knows (owner-confirmed facts)</h2><table><thead><tr><th>Question</th><th>Answer</th><th>Source</th><th>On website</th></tr></thead><tbody id="facts"></tbody></table></div>
+  <div class="card" style="margin-top:16px"><h2>What Jawab knows (owner-confirmed facts)</h2><div class="tablewrap"><table><thead><tr><th>Question</th><th>Answer</th><th>Source</th><th>On website</th></tr></thead><tbody id="facts"></tbody></table></div></div>
 </main>
 <script src="/static/common.js"></script>
 <script>
@@ -46,7 +46,7 @@ function render() {
       ${f ? `<div class="kv"><b>Answer:</b> ${esc(f.answer)} ${f.answer_hi ? `<span lang="hi">/ ${esc(f.answer_hi)}</span>` : ""}</div>` : ""}
       ${v ? `<div class="kv"><b>Live page check:</b> HTTP ${v.http_status ?? "?"} · visible ${v.visible ? "✓" : "✗"} · FAQPage JSON-LD ${v.structured_data ? "✓" : "✗"} · ${v.fetch_ms ?? "?"} ms</div>` : ""}
       ${probe}</div>`;
-  }).join("") : `<p class="muted">No gaps yet. Make a <a href="/call">customer call</a> and ask something the bakery hasn’t told Jawab.</p>`;
+  }).join("") : `<p class="muted">No gaps yet. <a href="/try">Try the guided demo</a>: call the bakery and ask something it hasn’t told Jawab.</p>`;
 
   document.getElementById("facts").innerHTML = data.facts.map((f) => `<tr><td>${esc(f.question)}</td><td>${esc(f.answer)}</td><td>${esc(f.source)}</td><td>${f.published ? "✓" : "—"}</td></tr>`).join("");
 }

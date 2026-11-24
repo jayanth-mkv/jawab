@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Try it live · Jawab</title>
+<meta name="description" content="Guided 2-minute demo of Jawab's Missed-Answer Loop: the customer phone and the owner app side by side.">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="top"><a class="brand" href="/" style="text-decoration:none">Jaw<span>ab</span><small>Missed-Answer Loop</small></a>
+  <nav><a href="/try" class="on">▶ Try it live</a><a href="/call">Customer call</a><a href="/owner">Owner app</a><a href="/dashboard">Answer Loop</a><a href="/site" target="_blank">Bakery website</a><a href="/demo">Demo video</a></nav>
+</header>
+<main class="wrap" style="max-width:1320px">
+  <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:14px">
+    <div><p class="eyebrow">Guided demo · about 2 minutes</p>
+      <h1 style="margin:0">Play both sides: the customer and the owner</h1></div>
+    <button class="btn ghost small" id="reset" style="margin-left:auto">↺ Start over</button>
+  </div>
+
+  <div class="guide" id="guide">
+    <div class="gstep" data-s="1"><b><span class="n">1</span>Call and ask something new</b>Tap 📞 on the phone, then tap <i>✨ Sunday delivery to Palasia?</i> (or just say it). Jawab won’t guess.</div>
+    <div class="gstep" data-s="2"><b><span class="n">2</span>Answer as the owner</b>The question pops up on the right. Tap 🎙️ and speak, or type an answer.</div>
+    <div class="gstep" data-s="3"><b><span class="n">3</span>Confirm</b>Check the English + Hindi draft and confirm. Stay on the call: the customer hears it in about a second.</div>
+    <div class="gstep" data-s="4"><b><span class="n">4</span>It’s on the web</b>Jawab publishes the FAQ to the bakery’s site and checks the live page.</div>
+  </div>
+
+  <div class="banner hidden" id="doneBanner">
+    <span class="dot green sm">✓</span>
+    <span>Loop closed in <span id="loopTime">—</span>: asked on a call, answered by voice, told to the caller, live on the web and verified.</span>
+    <a class="btn small green" href="/site" target="_blank" style="margin-left:auto">See the bakery website</a>
+    <a class="btn small ghost" href="/dashboard">Open the Answer Loop</a>
+  </div>
+
+  <div class="panes">
+    <div><p class="label">📞 Customer’s phone</p><iframe id="callFrame" src="/call?embed=1" allow="microphone; autoplay" title="Customer phone"></iframe></div>
+    <div><p class="label">🎙️ Owner app (Ritu ji)</p><iframe id="ownerFrame" src="/owner?embed=1" allow="microphone; autoplay" title="Owner app"></iframe></div>
+  </div>
+  <p class="muted" style="margin-top:12px">Use headphones so the agent doesn’t hear itself. Afterwards, call again and ask the same question: Jawab now answers instantly.
+    Prefer separate tabs or two devices? Open <a href="/call">/call</a> and <a href="/owner">/owner</a>.</p>
+</main>
+<script src="/static/common.js"></script>
+<script>
+const { api, secs } = Jawab;
+
+// Which guide step are we on? Derived from the newest gap's status.
+function stepOf(data) {
+  const g = [...data.gaps].sort((a, b) => (b.created_at || 0) - (a.created_at || 0))[0];
+  // A loop finished in an earlier session shouldn't greet a new visitor as "done".
+  if (!g || Date.now() / 1000 - (g.created_at || 0) > 15 * 60) return { step: 1 };
+  if (g.status === "open") return { step: g.draft ? 3 : 2, g };
+  if (g.status === "verified") return { step: 5, g };
+  return { step: 4, g };
+}
+
+async function refresh() {
+  let data;
+  try { data = await api("/api/state"); } catch { return; }
+  const { step, g } = stepOf(data);
+  document.querySelectorAll(".gstep").forEach((el) => {
+    const n = +el.dataset.s;
+    el.classList.toggle("done", n < step);
+    el.classList.toggle("now", n === step);
+    el.querySelector(".n").textContent = n < step ? "✓" : n;
+  });
+  const done = step === 5;
+  document.getElementById("doneBanner").classList.toggle("hidden", !done);
+  if (done && g.times) document.getElementById("loopTime").textContent = secs(g.times.verified - g.times.open);
+}
+
+document.getElementById("reset").onclick = async () => {
+  if (!confirm("Start over? This resets the bakery to its starting facts.")) return;
+  await api("/api/reset", { method: "POST" });
+  document.getElementById("callFrame").src = "/call?embed=1";
+  document.getElementById("ownerFrame").src = "/owner?embed=1";
+  refresh();
+};
+
+Jawab.events((m) => { if (["gap", "fact", "reset"].includes(m.type)) refresh(); });
+refresh();
+</script>
+</body>
+</html>

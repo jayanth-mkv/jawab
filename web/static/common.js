@@ -2,6 +2,9 @@
 const Jawab = (() => {
   const KEY = "jawab-code";
   const params = new URLSearchParams(location.search);
+  // ?embed=1 (used by the Try-it page's side-by-side panes) hides the header and explainer text.
+  const embedded = params.get("embed") === "1" || window.self !== window.top;
+  if (embedded) document.documentElement.classList.add("embed");
   if (params.get("code")) {
     try { localStorage.setItem(KEY, params.get("code")); } catch {}
   }
@@ -16,7 +19,7 @@ const Jawab = (() => {
     if (c && c.trim()) { try { localStorage.setItem(KEY, c.trim()); } catch {} location.reload(); }
   };
   // Check the code as soon as the page loads, so a missing/wrong code is caught before the first call.
-  fetch("/api/state", { headers: { "x-access-code": code() } })
+  if (!embedded) fetch("/api/state", { headers: { "x-access-code": code() } })
     .then((r) => { if (r.status === 401) askCode(code() ? "That access code didn't work. Enter the demo access code" : undefined); })
     .catch(() => {});
 
@@ -54,5 +57,5 @@ const Jawab = (() => {
     ["verified", "Verified live"],
   ];
 
-  return { api, events, esc, ago, secs, code, askCode, STEPS };
+  return { api, events, esc, ago, secs, code, askCode, embedded, STEPS };
 })();
