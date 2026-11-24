@@ -19,8 +19,11 @@ AI search at once.
 
 ## Try it in 2 minutes
 
-**Live:** https://jawab-uwp55gclza-uc.a.run.app/try (the page asks for the demo access code once; it is in the
-submission deck, and a link ending in `?code=…` fills it in for you). Use headphones so the agent doesn't hear itself.
+> **▶ Try it now (one click, code included):** https://jawab-uwp55gclza-uc.a.run.app/try?code=cbnav1efhd
+>
+> **Demo access code: `cbnav1efhd`**. The link above fills it in for you. If a page ever asks, type this code.
+
+Use headphones so the agent doesn't hear itself.
 
 The **Try it live** page (`/try`) puts the customer's phone and the owner app side by side on one screen, with a
 4-step guide at the top that moves forward on its own as you go:
@@ -111,7 +114,7 @@ GCLOUD_ACCOUNT=you@example.com ../scripts/deploy.sh                # Cloud Build
 terraform output -raw access_code                                  # demo access code
 ```
 
-Open `/try` (or `/call` and `/owner` side by side). Ask the bakery *"Sunday ko Palasia delivery karte ho?"*, answer it from the
+Open `/try` (or `/call` and `/owner` side by side; demo access code `cbnav1efhd`). Ask the bakery *"Sunday ko Palasia delivery karte ho?"*, answer it from the
 owner app with a voice note, and watch `/dashboard` and `/site`.
 
 ## Built with
