@@ -11,3 +11,4 @@ bench/out/*.wav
 bench/out/e2e.final.json
 .last_image
 infra/tfplan
+bench/out/demo/work/
