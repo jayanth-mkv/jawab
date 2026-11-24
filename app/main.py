@@ -381,8 +381,14 @@ async def call(ws: WebSocket) -> None:
                 if ctrl.get("type") == "text":
                     lrq.send_content(types.Content(role="user", parts=[types.Part(text=ctrl["text"])]))
 
+    ending = asyncio.Event()  # set when the agent calls end_call
+
+    async def hang_up_for_agent(reason: str) -> None:
+        await ws.send_text(json.dumps({"type": "agent_hangup", "reason": reason}))
+
     async def downstream() -> None:
         user_turn_at: float | None = None
+        end_reason = ""
         async for event in runner.run_live(user_id=session.user_id, session_id=session.id,
                                            live_request_queue=lrq, run_config=run_config):
             if event.input_transcription and event.input_transcription.text:
@@ -402,11 +408,17 @@ async def call(ws: WebSocket) -> None:
                         await ws.send_bytes(part.inline_data.data)
             for fc in event.get_function_calls() or []:
                 await ws.send_text(json.dumps({"type": "tool", "name": fc.name, "args": fc.args}))
+                if fc.name == "end_call":
+                    end_reason = (fc.args or {}).get("reason", "")
+                    ending.set()
             if event.interrupted:
                 await ws.send_text(json.dumps({"type": "interrupted"}))
             if event.turn_complete:
                 user_turn_at = None
                 await ws.send_text(json.dumps({"type": "turn_complete"}))
+                if ending.is_set():  # goodbye has been fully generated: hang up
+                    await hang_up_for_agent(end_reason)
+                    return
 
     async def owner_answers() -> None:
         while True:
@@ -416,11 +428,17 @@ async def call(ws: WebSocket) -> None:
                 text=f"[OWNER_ANSWER] Question: {f['question']} Answer from Ritu ji: {f['answer']} Tell the caller now.")]))
             await ws.send_text(json.dumps({"type": "owner_answer", "fact": f}))
 
+    async def end_watchdog() -> None:
+        # If the model never sends turn_complete after end_call, hang up anyway.
+        await ending.wait()
+        await asyncio.sleep(8)
+        await hang_up_for_agent("timeout after end_call")
+
     async def timer() -> None:
         await asyncio.sleep(config.MAX_CALL_SECONDS)
         await ws.send_text(json.dumps({"type": "time_limit"}))
 
-    tasks = [asyncio.create_task(c) for c in (upstream(), downstream(), owner_answers(), timer())]
+    tasks = [asyncio.create_task(c) for c in (upstream(), downstream(), owner_answers(), end_watchdog(), timer())]
     try:
         done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
         for t in done:

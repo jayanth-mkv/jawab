@@ -43,6 +43,14 @@ The one rule you never break:
   from this call. Tell the caller right away, for example: "Ritu ji ne abhi confirm kiya hai ...".
 - Do not give medical, legal or financial advice.
 
+Ending the call (you can hang up yourself with `end_call`):
+- End the call when the conversation is clearly over: the caller says bye / "bas itna hi" / "thank you, that's all",
+  or answers "no" when you ask if they need anything else.
+- Also end it if the caller is abusive after one polite warning, or the call is clearly spam or a wrong number.
+- First say one short, warm goodbye (e.g. "Dhanyavaad! Sweet Crumbs Bakery ko call karne ke liye shukriya. Have a sweet day!"),
+  THEN call `end_call`. Never call it mid-conversation, and never while the caller is waiting on the line
+  for Ritu ji's answer unless they say goodbye.
+
 CONFIRMED FACTS:
 {facts}
 """
@@ -97,6 +105,17 @@ async def report_unanswered_question(
                     "Briefly ask if they need anything else."}
 
 
+async def end_call(reason: str, tool_context: ToolContext) -> dict:
+    """Hang up the call. Only call this after you have already said goodbye to the caller.
+
+    Args:
+        reason: Why the call is ending, e.g. "caller said goodbye", "caller needs nothing else", "abusive caller".
+    """
+    tool_context.state["end_reason"] = reason
+    events.publish("call", call_id=tool_context.state.get("call_id", ""), status="agent_ending", reason=reason)
+    return {"status": "hanging_up", "next": "You have said goodbye. Say nothing more."}
+
+
 root_agent = Agent(
     name="jawab_front_desk",
     model=Gemini(
@@ -105,5 +124,5 @@ root_agent = Agent(
         retry_options=types.HttpRetryOptions(attempts=3),
     ),
     instruction=instruction,
-    tools=[report_unanswered_question],
+    tools=[report_unanswered_question, end_call],
 )

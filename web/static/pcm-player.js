@@ -28,7 +28,7 @@ class PcmPlayer extends AudioWorkletProcessor {
       } else out[i] = 0;
     }
     if (outputs[0][1]) outputs[0][1].set(out);
-    this.port.postMessage({ level });
+    this.port.postMessage({ level, queued: (this.w - this.r + this.size) % this.size });
     return true;
   }
 }
