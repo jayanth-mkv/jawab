@@ -2,6 +2,12 @@
 
 **Build 2036 · Frontier 06: The Rise of New India (MSME digitization)**
 
+[![Watch the 2-minute demo](docs/demo-poster.jpg)](https://jawab-uwp55gclza-uc.a.run.app/demo)
+
+**▶ [Watch the demo](https://jawab-uwp55gclza-uc.a.run.app/demo)** (2 min 49 s, plays in the browser) ·
+[download the MP4](bench/out/demo/jawab-demo.mp4). Everything in it is real: a Gemini Live call in Hindi, the owner's
+voice note, the answer told mid-call, publishing and verification, recorded against the live service.
+
 Jawab answers customer calls for small businesses in **Hindi and English** using **Gemini 3.8 Live**. It speaks
 only from facts the owner has confirmed. When a caller asks something it doesn't know, it **does not guess**:
 
@@ -25,8 +31,8 @@ AI search at once.
 
 Use headphones so the agent doesn't hear itself.
 
-The **Try it live** page (`/try`) puts the customer's phone and the owner app side by side on one screen, with a
-4-step guide at the top that moves forward on its own as you go:
+The **Try it live** page (`/try`) puts the customer's phone and the owner app side by side on one screen (tabs on a
+phone), with a 4-step guide that moves forward on its own as you go:
 
 | Step | You do | What happens |
 | --- | --- | --- |
@@ -47,15 +53,17 @@ Then call again and ask the same question: Jawab answers instantly. **↺ Start 
 | `/owner` | The business owner | Open questions, a 🎙️ voice note **or typed answer** (for a noisy shop, or anyone who doesn't speak Hindi), editable EN/HI draft, one-tap confirm + publish. |
 | `/dashboard` | Proof | Every gap with its five timed steps, page verification results and the AI-search probe. |
 | `/site` | The public | The bakery's own website: FAQ + `FAQPage` structured data that Google and AI assistants read. |
-| `/demo` | Anyone | The 95-second recorded walkthrough. |
+| `/demo` | Anyone | The 2:49 recorded walkthrough (the video at the top of this README). |
 
 ### Design
 
-The app uses the same visual language as our Build 2036 deck, so the demo, the deck and the video read as one product:
-a white canvas, ink-black Arial headings, a **red (`#d7191f`) accent** (primary buttons, active step, the bottom bar),
-soft-grey cards, and colored icon circles for each step. The bakery's public site (`/site`) keeps its own warm
-bakery style on purpose, because it stands for the business's website, not Jawab's. All tokens live in
-`web/static/style.css`; the layout works down to phone width.
+The app keeps the Build 2036 identity (white canvas, ink type, one **red (`#d7191f`) accent** warmed with amber) in a
+minimalist, modern UI. The customer phone is a dark voice screen with a glowing particle orb that reacts to the live
+audio (warm red when the bakery speaks, cooler white when you do). The owner app is a white sheet with a pill answer bar
+whose mic turns into live, stretching voice bars while recording (`web/static/voice.js`). `/try` fits everything on one
+screen: a step rail plus both devices side by side on desktop, and a Customer / Owner tab switcher on phones that follows
+the loop by itself. The bakery's public site (`/site`) keeps its own warm bakery style on purpose, because it stands
+for the business's website, not Jawab's. All tokens live in `web/static/style.css`.
 
 ### Access code
 
@@ -133,3 +141,15 @@ AudioWorklet. Patterns adapted from Google's [adk-samples voice agent](https://g
 - Public demo protected by an access code, single-instance cap, per-call time limit and a billing budget.
 
 Apache-2.0
+
+### Recording the demo video
+
+`bench/record_demo.py` records three browser contexts independently (the customer phone and the owner app, each with
+a scripted Hindi microphone, plus a desktop browser), drives them with a visible cursor like a person would, and edits
+the 1920x1080 video: both devices side by side, with each key moment expanded to full screen and zoomed in. Styling
+follows `DESIGN.md`.
+
+```
+uv run --with playwright --with opencv-python --with numpy python -m bench.record_demo record --base https://... --code XXXX
+uv run --with opencv-python --with numpy --with pillow python -m bench.record_demo compose
+```
